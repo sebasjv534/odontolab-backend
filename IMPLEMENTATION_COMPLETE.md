@@ -3,6 +3,7 @@
 ## ✅ ESTADO DEL PROYECTO
 
 ### Implementación Completa:
+
 - ✓ Modelos de dominio (User, Patient, MedicalRecord, ContactRequest)
 - ✓ Schemas Pydantic con validación
 - ✓ Repositorios con CRUD completo
@@ -17,11 +18,13 @@
 ## 📦 ESTRUCTURA DE LA APLICACIÓN
 
 ### Domain Layer (Modelos + Schemas)
+
 - User, Patient, MedicalRecord, ContactRequest
 - Enums: UserRole (ADMIN/DENTIST/RECEPTIONIST), ContactStatus
 - Schemas Pydantic con validación completa
 
 ### Application Layer (Servicios)
+
 - **AuthService**: Autenticación JWT + OAuth2
 - **UserService**: Gestión de usuarios
 - **PatientService**: Gestión de pacientes con permisos por rol
@@ -30,12 +33,14 @@
 - **ContactService**: Solicitudes públicas (sin auth)
 
 ### Infrastructure Layer (Repositorios)
+
 - **UserRepository**: CRUD + count_by_role, count_active_users
 - **PatientRepository**: CRUD + search, count_recent, get_by_creator
 - **MedicalRecordRepository**: CRUD + get_upcoming_appointments
 - **ContactRequestRepository**: CRUD + get_pending, update_status
 
 ### Presentation Layer (API Endpoints)
+
 - **/api/v1/auth**: Login, me, refresh, logout
 - **/api/v1/users**: CRUD usuarios (Admin only)
 - **/api/v1/patients**: CRUD pacientes + búsqueda
@@ -64,12 +69,14 @@
 ## 📝 ENDPOINTS API (Total: 33)
 
 ### Autenticación (4 endpoints)
+
 - POST /api/v1/auth/login
 - GET /api/v1/auth/me
 - POST /api/v1/auth/refresh
 - POST /api/v1/auth/logout
 
 ### Usuarios - Admin only (6 endpoints)
+
 - POST /api/v1/users
 - GET /api/v1/users
 - GET /api/v1/users/{user_id}
@@ -78,6 +85,7 @@
 - DELETE /api/v1/users/{user_id}
 
 ### Pacientes (6 endpoints)
+
 - POST /api/v1/patients
 - GET /api/v1/patients
 - GET /api/v1/patients/search?q=term
@@ -86,6 +94,7 @@
 - DELETE /api/v1/patients/{patient_id}
 
 ### Historias Clínicas (7 endpoints)
+
 - POST /api/v1/medical-records (Dentist only)
 - GET /api/v1/medical-records
 - GET /api/v1/medical-records/patient/{patient_id}
@@ -95,12 +104,14 @@
 - DELETE /api/v1/medical-records/{record_id} (Admin only)
 
 ### Dashboard (4 endpoints)
+
 - GET /api/v1/dashboard/stats (dinámico por rol)
 - GET /api/v1/dashboard/admin
 - GET /api/v1/dashboard/dentist
 - GET /api/v1/dashboard/receptionist
 
 ### Contacto (6 endpoints)
+
 - POST /api/v1/contact (PÚBLICO - sin auth)
 - GET /api/v1/contact
 - GET /api/v1/contact/pending
@@ -113,12 +124,14 @@
 ## 🎯 PRÓXIMOS PASOS
 
 ### 1. Configurar Base de Datos
+
 Editar el archivo `.env` con las credenciales de PostgreSQL:
 ```
 DATABASE_URL=postgresql+asyncpg://usuario:contraseña@localhost:5432/odontolab_db
 ```
 
 ### 2. Inicializar Base de Datos
+
 ```bash
 python init_db.py
 ```
@@ -129,11 +142,13 @@ Esto creará:
 - Solicitudes de contacto de ejemplo
 
 ### 3. Ejecutar Servidor de Desarrollo
+
 ```bash
 python run_dev.py
 ```
 
 ### 4. Acceder a la Documentación
+
 - Swagger UI: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc
 - API Base: http://localhost:8000/api/v1
@@ -155,6 +170,7 @@ Después de ejecutar `init_db.py`, podrás acceder con:
 ## 📊 PERMISOS POR ROL
 
 ### Administrador (ADMIN)
+
 - ✓ Gestión completa de usuarios (CRUD)
 - ✓ Ver todos los pacientes
 - ✓ Ver todas las historias clínicas
@@ -163,6 +179,7 @@ Después de ejecutar `init_db.py`, podrás acceder con:
 - ✓ Gestión de solicitudes de contacto
 
 ### Dentista (DENTIST)
+
 - ✓ Crear historias clínicas
 - ✓ Ver y editar solo sus propias historias
 - ✓ Ver todos los pacientes
@@ -170,6 +187,7 @@ Después de ejecutar `init_db.py`, podrás acceder con:
 - ✓ Ver citas próximas
 
 ### Recepcionista (RECEPTIONIST)
+
 - ✓ Crear y gestionar pacientes
 - ✓ Ver solo pacientes que creó
 - ✓ Ver historias clínicas de sus pacientes

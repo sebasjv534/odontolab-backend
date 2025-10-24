@@ -2,10 +2,18 @@ services:
   - type: web
     name: odontolab-api
     env: python
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install -r requirements.txt && python init_db.py
     startCommand: gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 120 --preload
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.9
       - key: PORT
         value: 10000
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: true
+      - key: ENVIRONMENT
+        value: production
