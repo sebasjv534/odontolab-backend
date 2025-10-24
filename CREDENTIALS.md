@@ -105,20 +105,37 @@ CORS_ORIGINS=http://localhost:3000,http://localhost:5173,https://tu-frontend.ver
 
 ```bash
 git add .
-git commit -m "Add init_db to build process"
+git commit -m "Update configuration for free tier"
 git push origin main
 ```
 
-### 3. Render Automáticamente:
+### 3. Esperar Deploy de Render
 
-✅ Detectará los cambios en GitHub
-✅ Ejecutará `pip install -r requirements.txt`
-✅ Ejecutará `python init_db.py` (crea tablas y datos)
-✅ Iniciará el servidor con gunicorn
+✅ Render detectará los cambios y desplegará (2-3 minutos)
+✅ El servidor arrancará sin inicializar la BD primero
 
-### 4. Verificar el Deploy
+### 4. Inicializar Base de Datos MANUALMENTE desde Render Shell
 
-Después de que termine el deploy (2-3 minutos):
+**Esto es necesario en el plan gratuito por los timeouts:**
+
+1. Ve a Render Dashboard → Tu servicio web
+2. Click en **"Shell"** en el menú superior
+3. Ejecuta uno de estos comandos:
+
+```bash
+# Opción 1: Con reintentos automáticos (recomendado)
+python init_db_retry.py
+
+# Opción 2: Script simple
+python init_db.py
+```
+
+4. Espera a que termine (puede tardar 1-2 minutos)
+5. Verás el mensaje: "✓ Database initialized successfully!"
+
+### 5. Verificar el Deploy
+
+Después de inicializar la BD:
 
 ```bash
 # 1. Health Check
