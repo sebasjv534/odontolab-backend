@@ -84,3 +84,6 @@ class BusinessLogicError(AppError):
     """Error de lógica de negocio."""
     def __init__(self, message="Business logic error"):
         super().__init__(message, code="business_logic_error")
+
+# Alias for compatibility
+PermissionError = AuthorizationError

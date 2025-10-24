@@ -37,9 +37,9 @@ def create_application() -> FastAPI:
         title=settings.PROJECT_NAME,
         version=settings.VERSION,
         description="API REST para la gestión de clínicas odontológicas",
-        docs_url="/docs" if settings.DEBUG else None,
-        redoc_url="/redoc" if settings.DEBUG else None,
-        openapi_url="/openapi.json" if settings.DEBUG else None
+        docs_url="/docs",  # Siempre habilitado para Render
+        redoc_url="/redoc",  # Siempre habilitado para Render
+        openapi_url="/openapi.json"  # Siempre habilitado para Render
     )
     
     # Configure CORS

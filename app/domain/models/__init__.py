@@ -1,29 +1,20 @@
 """
-Models package for the odontology system.
+Domain models for the OdontoLab system.
 
-This package contains all SQLAlchemy models for the dental clinic management system,
-including user management, role-based access control, patient records, and clinical interventions.
+This module exports all domain models for the application following the
+odontolab_database.sql schema.
 """
 
-from .user_model import User
-from .role_model import Role, RoleType
-from .profile_models import DentistProfile, ReceptionistProfile, AdministratorProfile
-from .clinical_models import (
-    Patient, 
-    ClinicalIntervention,
-    Gender,
-    InterventionType
-)
+from .user_model import User, UserRole
+from .patient import Patient
+from .medical_record import MedicalRecord
+from .contact_request import ContactRequest, ContactStatus
 
 __all__ = [
     "User",
-    "Role",
-    "RoleType",
-    "DentistProfile", 
-    "ReceptionistProfile",
-    "AdministratorProfile",
+    "UserRole",
     "Patient",
-    "ClinicalIntervention",
-    "Gender",
-    "InterventionType"
+    "MedicalRecord",
+    "ContactRequest",
+    "ContactStatus",
 ]

@@ -6,10 +6,25 @@ and authorization in the dental clinic management system.
 """
 
 import uuid
-from sqlalchemy import Column, String, DateTime, func, Boolean, ForeignKey, Text
+import enum
+from sqlalchemy import Column, String, DateTime, func, Boolean, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 from app.core.database import Base
+
+
+class UserRole(str, enum.Enum):
+    """
+    Enum for user roles in the system.
+    
+    Values:
+        ADMIN: Administrator with full system access
+        DENTIST: Dental professional who creates medical records
+        RECEPTIONIST: Front desk staff who manages patients
+    """
+    ADMIN = "admin"
+    DENTIST = "dentist"
+    RECEPTIONIST = "receptionist"
 
 
 class User(Base):
@@ -21,43 +36,37 @@ class User(Base):
     
     Attributes:
         id (UUID): Unique identifier for the user
-        username (str): Unique username for login
-        email (str): User's email address (unique)
-        password_hash (str): Bcrypt hashed password
+        email (str): User's email address (unique, used as username)
+        hashed_password (str): Bcrypt hashed password
         first_name (str): User's first name
         last_name (str): User's last name
-        phone (str): Contact phone number
+        role (UserRole): User's role (admin, dentist, receptionist)
         is_active (bool): Whether the user account is active
-        role_id (UUID): Foreign key reference to the user's role
         created_at (datetime): Account creation timestamp
         updated_at (datetime): Last profile update timestamp
         
     Relationships:
-        role: Many-to-one relationship with Role model
-        dentist_profile: One-to-one relationship with DentistProfile (if user is dentist)
-        receptionist_profile: One-to-one relationship with ReceptionistProfile (if user is receptionist)
+        patients_created: One-to-many relationship with Patient (created_by)
+        medical_records: One-to-many relationship with MedicalRecord (dentist_id)
     """
     __tablename__ = "users"
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    username = Column(String(50), unique=True, nullable=False, index=True)
     email = Column(String(255), unique=True, nullable=False, index=True)
-    password_hash = Column(String(255), nullable=False)
+    hashed_password = Column(String(255), nullable=False)
     first_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)
-    phone = Column(String(20), nullable=True)
-    is_active = Column(Boolean, default=True, nullable=False)
-    role_id = Column(UUID(as_uuid=True), ForeignKey("roles.id"), nullable=False)
+    role = Column(Enum(UserRole, name="user_role"), nullable=False, index=True)
+    is_active = Column(Boolean, default=True, nullable=False, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     
     # Relationships
-    role = relationship("Role", back_populates="users")
-    dentist_profile = relationship("DentistProfile", back_populates="user", uselist=False)
-    receptionist_profile = relationship("ReceptionistProfile", back_populates="user", uselist=False)
+    patients_created = relationship("Patient", back_populates="creator", foreign_keys="Patient.created_by")
+    medical_records = relationship("MedicalRecord", back_populates="dentist", foreign_keys="MedicalRecord.dentist_id")
     
     def __repr__(self) -> str:
-        return f"<User(username='{self.username}', email='{self.email}')>"
+        return f"<User(email='{self.email}', role='{self.role.value}')>"
     
     @property
     def full_name(self) -> str:

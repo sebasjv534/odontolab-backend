@@ -1,53 +1,74 @@
 """
-Schemas package for the odontology system.
+Schemas package for the OdontoLab system.
 
-This package contains all Pydantic schemas for request/response validation
-and serialization in the dental clinic management system.
+This package contains all Pydantic schemas for request validation and response serialization.
 """
 
-from .auth_schemas import (
-    LoginRequest,
-    TokenResponse,
-    TokenData,
-    UserResponse,
-    ChangePasswordRequest
-)
+from .auth_schemas import Token, TokenData, LoginResponse, UserMeResponse
 from .user_schemas import (
-    AdminCreateUserRequest,
-    UserUpdateRequest,
-    UserDetailResponse,
-    DentistProfileResponse,
-    ReceptionistProfileResponse
+    UserRole, UserBase, UserCreate, UserUpdate, UserUpdatePassword,
+    UserDeactivate, UserResponse, UserListResponse
 )
-from .clinical_schemas import (
-    PatientCreateRequest,
-    PatientUpdateRequest,
-    PatientResponse,
-    PatientWithInterventionsResponse,
-    ClinicalInterventionCreateRequest,
-    ClinicalInterventionUpdateRequest,
-    ClinicalInterventionResponse
+from .patient_schemas import (
+    PatientBase, PatientCreate, PatientUpdate,
+    PatientResponse, PatientListResponse
+)
+from .medical_record_schemas import (
+    MedicalRecordBase, MedicalRecordCreate, MedicalRecordUpdate,
+    MedicalRecordResponse, MedicalRecordListResponse
+)
+from .contact_schemas import (
+    ContactStatus, ContactRequestCreate, ContactRequestResponse,
+    ContactRequestUpdateStatus, ContactRequestListResponse
+)
+from .dashboard_schemas import (
+    AdminDashboardStats, DentistDashboardStats, ReceptionistDashboardStats,
+    RecentActivityItem, DashboardStatsResponse, RecentActivityResponse
 )
 
 __all__ = [
     # Auth schemas
-    "LoginRequest",
-    "TokenResponse", 
+    "Token",
     "TokenData",
-    "UserResponse",
-    "ChangePasswordRequest",
+    "LoginResponse",
+    "UserMeResponse",
+    
     # User schemas
-    "AdminCreateUserRequest",
-    "UserUpdateRequest",
-    "UserDetailResponse",
-    "DentistProfileResponse",
-    "ReceptionistProfileResponse",
-    # Clinical schemas
-    "PatientCreateRequest",
-    "PatientUpdateRequest",
+    "UserRole",
+    "UserBase",
+    "UserCreate",
+    "UserUpdate",
+    "UserUpdatePassword",
+    "UserDeactivate",
+    "UserResponse",
+    "UserListResponse",
+    
+    # Patient schemas
+    "PatientBase",
+    "PatientCreate",
+    "PatientUpdate",
     "PatientResponse",
-    "PatientWithInterventionsResponse",
-    "ClinicalInterventionCreateRequest",
-    "ClinicalInterventionUpdateRequest",
-    "ClinicalInterventionResponse"
+    "PatientListResponse",
+    
+    # Medical Record schemas
+    "MedicalRecordBase",
+    "MedicalRecordCreate",
+    "MedicalRecordUpdate",
+    "MedicalRecordResponse",
+    "MedicalRecordListResponse",
+    
+    # Contact schemas
+    "ContactStatus",
+    "ContactRequestCreate",
+    "ContactRequestResponse",
+    "ContactRequestUpdateStatus",
+    "ContactRequestListResponse",
+    
+    # Dashboard schemas
+    "AdminDashboardStats",
+    "DentistDashboardStats",
+    "ReceptionistDashboardStats",
+    "RecentActivityItem",
+    "DashboardStatsResponse",
+    "RecentActivityResponse",
 ]
