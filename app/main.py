@@ -158,11 +158,26 @@ def setup_routes(app: FastAPI) -> None:
     
     @app.get("/health", tags=["Health"])
     async def health_check():
-        """Health check endpoint."""
+        """Health check endpoint with database connectivity check."""
+        from datetime import datetime
+        from app.core.database import engine
+        from sqlalchemy import text
+        
+        db_status = "unknown"
+        try:
+            # Verificar conexión a la base de datos
+            async with engine.connect() as conn:
+                await conn.execute(text("SELECT 1"))
+            db_status = "connected"
+        except Exception as e:
+            db_status = f"error: {str(e)[:50]}"
+        
         return {
             "status": "healthy",
             "version": settings.VERSION,
-            "environment": settings.ENVIRONMENT
+            "environment": settings.ENVIRONMENT,
+            "database": db_status,
+            "timestamp": datetime.utcnow().isoformat()
         }
     
     # Include API version 1 routes

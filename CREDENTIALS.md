@@ -3,16 +3,19 @@
 ## 🌐 URLs del Sistema
 
 ### Backend API
+
 ```
 https://odontolab-backend.onrender.com
 ```
 
 ### Documentación Swagger
+
 ```
 https://odontolab-backend.onrender.com/docs
 ```
 
 ### Documentación ReDoc
+
 ```
 https://odontolab-backend.onrender.com/redoc
 ```
@@ -24,12 +27,15 @@ https://odontolab-backend.onrender.com/redoc
 Una vez que la base de datos esté inicializada (después del primer deploy), tendrás estos usuarios:
 
 ### 🔴 Administrador
+
 ```
 Email:    admin@odontolab.com
 Password: admin123
 Rol:      ADMIN
 ```
+
 **Permisos:**
+
 - ✅ Acceso completo a todos los módulos
 - ✅ Gestión de usuarios (crear, editar, eliminar)
 - ✅ Ver todos los pacientes e historias clínicas
@@ -39,12 +45,15 @@ Rol:      ADMIN
 ---
 
 ### 🟢 Dentista
+
 ```
 Email:    dentista@odontolab.com
 Password: dentista123
 Rol:      DENTIST
 ```
+
 **Permisos:**
+
 - ✅ Crear y editar historias clínicas propias
 - ✅ Ver y gestionar pacientes
 - ✅ Dashboard de dentista (estadísticas personales)
@@ -55,12 +64,15 @@ Rol:      DENTIST
 ---
 
 ### 🔵 Recepcionista
+
 ```
 Email:    recepcion@odontolab.com
 Password: recepcion123
 Rol:      RECEPTIONIST
 ```
+
 **Permisos:**
+
 - ✅ Crear y gestionar pacientes propios
 - ✅ Ver solicitudes de contacto
 - ✅ Dashboard de recepcionista
@@ -73,11 +85,13 @@ Rol:      RECEPTIONIST
 ## 📊 Datos de Prueba Incluidos
 
 ### Pacientes (3)
+
 1. **Carlos Rodríguez** - O+ - Sin alergias
 2. **Laura Martínez** - A+ - Alérgica a Penicilina, Hipertensión
 3. **Roberto Sánchez** - B+ - Sin condiciones
 
 ### Solicitudes de Contacto (2)
+
 1. **Patricia López** - Consulta sobre ortodoncia
 2. **Miguel Torres** - Información sobre implantes
 
@@ -154,13 +168,13 @@ https://odontolab-backend.onrender.com/docs
 
 ## 🔧 Solución de Problemas
 
-### Si el deploy falla:
+### Si el deploy falla
 
 1. **Ver logs en Render Dashboard** → Logs
 2. **Verificar que DATABASE_URL esté configurada correctamente**
 3. **Asegurarse que la base de datos PostgreSQL esté activa**
 
-### Si init_db.py falla:
+### Si init_db.py falla
 
 Puedes ejecutarlo manualmente desde Render Shell:
 
@@ -169,7 +183,7 @@ Puedes ejecutarlo manualmente desde Render Shell:
 python init_db.py
 ```
 
-### Si no puedes conectarte desde tu máquina local:
+### Si no puedes conectarte desde tu máquina local
 
 La base de datos de Render **solo acepta conexiones desde servicios de Render** por defecto. Para conectarte desde afuera:
 
@@ -208,6 +222,7 @@ Las contraseñas de prueba son conocidas públicamente. Después de verificar qu
 2. Ir a gestión de usuarios
 3. Cambiar las contraseñas de todos los usuarios
 4. O usar el endpoint:
+
    ```
    PUT /api/v1/users/{user_id}
    { "password": "nueva-contraseña-segura" }

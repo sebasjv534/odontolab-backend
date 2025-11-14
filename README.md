@@ -5,6 +5,7 @@ Una API REST completa para la gestión de clínicas odontológicas, construida c
 ## 🚀 Características Principales
 
 ### Autenticación y Autorización
+
 - **JWT (JSON Web Tokens)** para autenticación segura
 - **Sistema de roles** con permisos específicos:
   - **Administrador**: Gestión completa del sistema y usuarios
@@ -12,18 +13,21 @@ Una API REST completa para la gestión de clínicas odontológicas, construida c
   - **Recepcionista**: Gestión de pacientes y citas
 
 ### Gestión de Usuarios
+
 - Registro y autenticación de usuarios
 - Perfiles específicos por rol
 - Gestión de credenciales y permisos
 - Sistema de activación/desactivación de cuentas
 
 ### Gestión Clínica
+
 - **Gestión de Pacientes**: Registro completo con datos médicos
 - **Registros Clínicos**: Historial médico detallado
 - **Intervenciones Dentales**: Registro de procedimientos y tratamientos
 - **Búsqueda y Filtrado**: Sistema avanzado de búsqueda
 
 ### Arquitectura
+
 - **Clean Architecture** con separación de capas
 - **Repository Pattern** para acceso a datos
 - **Dependency Injection** para inversión de dependencias
@@ -117,6 +121,7 @@ python init_db.py
 ```
 
 Este script:
+
 - Crea todas las tablas necesarias
 - Inserta los roles por defecto (administrador, dentista, recepcionista)
 - Crea un usuario administrador por defecto:
@@ -140,6 +145,7 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
 ```
 
 La API estará disponible en:
+
 - **URL Base**: http://localhost:8000
 - **Documentación Swagger**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
@@ -149,10 +155,12 @@ La API estará disponible en:
 ### Endpoints Principales
 
 #### Autenticación
+
 - `POST /api/v1/auth/login` - Iniciar sesión
 - `POST /api/v1/auth/refresh` - Refrescar token
 
 #### Gestión de Usuarios (Solo Administradores)
+
 - `POST /api/v1/admin/users/administrator` - Crear administrador
 - `POST /api/v1/admin/users/dentist` - Crear dentista
 - `POST /api/v1/admin/users/receptionist` - Crear recepcionista
@@ -162,6 +170,7 @@ La API estará disponible en:
 - `DELETE /api/v1/admin/users/{user_id}` - Eliminar usuario
 
 #### Gestión de Pacientes (Recepcionistas)
+
 - `POST /api/v1/patients` - Registrar paciente
 - `GET /api/v1/patients` - Listar pacientes
 - `GET /api/v1/patients/{patient_id}` - Obtener paciente específico
@@ -169,6 +178,7 @@ La API estará disponible en:
 - `GET /api/v1/patients/search?q={query}` - Buscar pacientes
 
 #### Gestión Clínica (Dentistas)
+
 - `POST /api/v1/clinical/records` - Crear registro clínico
 - `GET /api/v1/clinical/records` - Listar registros clínicos
 - `GET /api/v1/clinical/records/{record_id}` - Obtener registro específico
@@ -182,6 +192,7 @@ La API estará disponible en:
 ### Modelos de Datos
 
 #### Usuario
+
 ```json
 {
   \"id\": \"uuid\",
@@ -195,6 +206,7 @@ La API estará disponible en:
 ```
 
 #### Paciente
+
 ```json
 {
   \"id\": \"uuid\",
@@ -220,6 +232,7 @@ La API estará disponible en:
 ```
 
 #### Intervención Dental
+
 ```json
 {
   \"id\": \"uuid\",
@@ -304,21 +317,25 @@ app/
 ## 🛡️ Seguridad
 
 ### Autenticación JWT
+
 - Tokens seguros con expiración configurable
 - Refresh tokens para sesiones prolongadas
 - Blacklist de tokens revocados
 
 ### Autorización Basada en Roles
+
 - Permisos granulares por endpoint
 - Middleware de autorización automático
 - Validación de permisos por operación
 
 ### Protección de Datos
+
 - Hash seguro de contraseñas con bcrypt
 - Validación de entrada con Pydantic
 - Sanitización de datos de salida
 
 ### CORS y Headers de Seguridad
+
 - Configuración CORS restrictiva
 - Headers de seguridad apropiados
 - Rate limiting (configurable)
@@ -355,6 +372,7 @@ databases:
 ### 2. Variables de Entorno en Render
 
 Configurar en el dashboard de Render:
+
 - `SECRET_KEY`: Clave secreta para JWT (auto-generada)
 - `DATABASE_URL`: URL de PostgreSQL (auto-configurada)
 - `ENVIRONMENT`: production
@@ -406,11 +424,13 @@ tests/
 ## 📈 Monitoreo y Logging
 
 ### Logging
+
 - Logs estructurados con información contextual
 - Diferentes niveles de log por ambiente
 - Rotación automática de archivos de log
 
 ### Métricas
+
 - Tiempo de respuesta de endpoints
 - Número de requests por minuto
 - Errores por endpoint
@@ -419,6 +439,7 @@ tests/
 ## 🔄 Flujo de Trabajo de la Aplicación
 
 ### 1. Flujo de Autenticación
+
 1. Usuario envía credenciales a `/auth/login`
 2. Sistema valida credenciales contra la base de datos
 3. Si son válidas, genera JWT token
@@ -426,18 +447,21 @@ tests/
 5. Middleware valida token en cada request protegido
 
 ### 2. Flujo de Registro de Usuario (Admin)
+
 1. Administrador accede a endpoints de gestión de usuarios
 2. Crea usuario con rol específico (dentista/recepcionista)
 3. Sistema crea usuario y perfil asociado
 4. Notifica al nuevo usuario (email/SMS)
 
 ### 3. Flujo de Gestión de Pacientes (Recepcionista)
+
 1. Recepcionista registra nuevo paciente
 2. Sistema genera número único de paciente
 3. Almacena información completa del paciente
 4. Permite búsqueda y actualización posterior
 
 ### 4. Flujo de Intervención Clínica (Dentista)
+
 1. Dentista selecciona paciente
 2. Crea registro clínico para la visita
 3. Registra intervenciones específicas
@@ -464,6 +488,7 @@ tests/
 - **Comentarios en español** para documentación
 
 ### Convenciones de Commit
+
 ```
 feat: nueva funcionalidad
 fix: corrección de bug
@@ -480,13 +505,58 @@ Este proyecto está licenciado bajo la Licencia MIT - ver el archivo [LICENSE](L
 ## 📞 Soporte
 
 Para soporte técnico o consultas:
+
 - **Email**: support@odontolab.com
 - **Issues**: [GitHub Issues](https://github.com/your-repo/issues)
 - **Documentación**: [Wiki del Proyecto](https://github.com/your-repo/wiki)
 
-## 📝 Changelog
+## � Despliegue en Render
+
+### Despliegue Rápido (5 minutos)
+
+Este proyecto está **100% preparado** para desplegar en Render (plan gratuito).
+
+**Archivos de configuración incluidos:**
+
+- ✅ `render.yaml` - Configuración automática para Render
+- ✅ `init_db_render.py` - Script de inicialización de base de datos
+- ✅ Optimizaciones para plan gratuito de Render
+
+**Documentación completa:**
+
+- 📖 **[README_DEPLOY.md](README_DEPLOY.md)** - Guía rápida (5 min)
+- 📚 **[RENDER_SETUP_GUIDE.md](RENDER_SETUP_GUIDE.md)** - Guía paso a paso detallada
+- 📋 **[DEPLOY_QUICK.md](DEPLOY_QUICK.md)** - Resumen ejecutivo
+
+**Pasos rápidos:**
+
+```bash
+# 1. Subir a GitHub
+git push origin main
+
+# 2. En Render Dashboard:
+#    - New + → Blueprint
+#    - Conectar repositorio
+#    - Apply
+
+# 3. Configurar SECRET_KEY en Environment
+
+# 4. Ejecutar desde Render Shell:
+python init_db_render.py
+```
+
+**URLs después del deploy:**
+
+- API: `https://[tu-app].onrender.com`
+- Docs: `https://[tu-app].onrender.com/docs`
+- Health: `https://[tu-app].onrender.com/health`
+
+Ver **[README_DEPLOY.md](README_DEPLOY.md)** para instrucciones completas.
+
+## �📝 Changelog
 
 ### v1.0.0 (2024-01-XX)
+
 - ✅ Sistema de autenticación JWT
 - ✅ Gestión de usuarios por roles
 - ✅ CRUD completo de pacientes
@@ -494,8 +564,12 @@ Para soporte técnico o consultas:
 - ✅ Gestión de intervenciones dentales
 - ✅ API REST completa con documentación
 - ✅ Despliegue listo para producción
+- ✅ **Configuración completa para Render (plan gratuito)**
+- ✅ **Optimizaciones para PostgreSQL free tier**
+- ✅ **Scripts de inicialización automática**
 
 ### Próximas Funcionalidades
+
 - 🔄 Sistema de citas
 - 🔄 Notificaciones por email/SMS
 - 🔄 Reportes y estadísticas

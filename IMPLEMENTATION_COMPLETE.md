@@ -2,7 +2,7 @@
 
 ## ✅ ESTADO DEL PROYECTO
 
-### Implementación Completa:
+### Implementación Completa
 
 - ✓ Modelos de dominio (User, Patient, MedicalRecord, ContactRequest)
 - ✓ Schemas Pydantic con validación
@@ -126,6 +126,7 @@
 ### 1. Configurar Base de Datos
 
 Editar el archivo `.env` con las credenciales de PostgreSQL:
+
 ```
 DATABASE_URL=postgresql+asyncpg://usuario:contraseña@localhost:5432/odontolab_db
 ```
@@ -135,7 +136,9 @@ DATABASE_URL=postgresql+asyncpg://usuario:contraseña@localhost:5432/odontolab_d
 ```bash
 python init_db.py
 ```
+
 Esto creará:
+
 - Todas las tablas
 - Usuarios por defecto (admin, dentista, recepcionista)
 - Pacientes de ejemplo
@@ -149,9 +152,9 @@ python run_dev.py
 
 ### 4. Acceder a la Documentación
 
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
-- API Base: http://localhost:8000/api/v1
+- Swagger UI: <http://localhost:8000/docs>
+- ReDoc: <http://localhost:8000/redoc>
+- API Base: <http://localhost:8000/api/v1>
 
 ---
 
@@ -161,9 +164,9 @@ Después de ejecutar `init_db.py`, podrás acceder con:
 
 | Rol | Email | Password |
 |-----|-------|----------|
-| Administrador | admin@odontolab.com | admin123 |
-| Dentista | dentista@odontolab.com | dentista123 |
-| Recepcionista | recepcion@odontolab.com | recepcion123 |
+| Administrador | <admin@odontolab.com> | admin123 |
+| Dentista | <dentista@odontolab.com> | dentista123 |
+| Recepcionista | <recepcion@odontolab.com> | recepcion123 |
 
 ---
 
@@ -210,6 +213,6 @@ Después de ejecutar `init_db.py`, podrás acceder con:
 
 ---
 
-## 🚀 ¡TODO LISTO PARA COMENZAR!
+## 🚀 ¡TODO LISTO PARA COMENZAR
 
 El backend de OdontoLab está completamente implementado siguiendo las especificaciones del API_SUMMARY.md. Todos los endpoints están documentados, probados y listos para integrarse con el frontend.
