@@ -13,8 +13,12 @@ from .medical_records import router as medical_records_router
 from .dashboard import router as dashboard_router
 from .contact import router as contact_router
 from .init_db_endpoint import router as init_db_router
+from .setup import router as setup_router
 
 api_router = APIRouter()
+
+# Include setup routes (public - for initial admin registration)
+api_router.include_router(setup_router, tags=["Setup"])
 
 # Include authentication routes
 api_router.include_router(auth_router, prefix="/auth", tags=["Authentication"])
