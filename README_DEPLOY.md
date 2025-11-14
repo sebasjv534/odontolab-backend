@@ -65,30 +65,43 @@ git push origin main
 ### Paso 4: Esperar el Despliegue
 
 - Ver progreso en: Dashboard → Tu servicio → **Logs**
+- La base de datos se **inicializará automáticamente** durante el despliegue
 - Cuando veas: `"Application startup complete"` → ¡Listo!
 - Si hay error: Revisar logs y verificar DATABASE_URL
 
-### Paso 5: Inicializar Base de Datos
+**Nota**: El plan gratuito NO incluye Shell, pero la base de datos se inicializa automáticamente con `preDeployCommand`.
 
-**Desde Render Shell:**
+### Paso 5: Verificar Inicialización (Automático)
 
-1. En Dashboard → Tu Web Service → **Shell** (menú izquierdo)
-2. Ejecutar:
+**La base de datos se inicializa automáticamente**, pero puedes verificar:
+
+**Opción A - Endpoint de verificación (público):**
+
+```bash
+curl https://[tu-app].onrender.com/api/v1/check-init-status
+```
+
+Respuesta esperada:
+
+```json
+{
+  "initialized": true,
+  "users_count": 3,
+  "timestamp": "2024-11-13T..."
+}
+```
+
+**Opción B - Si necesitas inicializar manualmente:**
+
+1. Configura variable de entorno `INIT_DB_TOKEN` en Render (genera un token random)
+2. Ejecuta:
 
    ```bash
-   python init_db_render.py
+   curl -X POST https://[tu-app].onrender.com/api/v1/init-database \
+        -H "X-Init-Token: tu-token-secreto"
    ```
 
-3. Verás mensajes de progreso y al final las credenciales:
-
-   ```
-   ✅ Database initialized successfully!
-   
-   🔐 Default User Credentials:
-   Admin:        admin@odontolab.com / admin123
-   Dentist:      dentista@odontolab.com / dentista123
-   Receptionist: recepcion@odontolab.com / recepcion123
-   ```
+**Ver documentación completa**: `RENDER_NO_SHELL.md`
 
 ---
 

@@ -12,6 +12,7 @@ from .patients import router as patients_router
 from .medical_records import router as medical_records_router
 from .dashboard import router as dashboard_router
 from .contact import router as contact_router
+from .init_db_endpoint import router as init_db_router
 
 api_router = APIRouter()
 
@@ -32,6 +33,9 @@ api_router.include_router(dashboard_router, prefix="/dashboard", tags=["Dashboar
 
 # Include contact request routes (Public + Admin/Receptionist)
 api_router.include_router(contact_router, prefix="/contact", tags=["Contact"])
+
+# Include database initialization endpoint (for Render free tier)
+api_router.include_router(init_db_router, tags=["Database Init"])
 
 
 @api_router.get("/status", tags=["API"])
