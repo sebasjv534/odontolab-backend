@@ -71,17 +71,24 @@ async def register_first_admin(
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
         
-        # PASO 2: Verificar si ya existe algún usuario
-        result = await db.execute(select(User))
-        existing_users = result.scalars().all()
+        # PASO 2: Verificar si ya existe algún ADMIN activo
+        # Permitir registro si no hay ningún admin activo (para recuperación)
+        result = await db.execute(
+            select(User).where(
+                User.role == UserRole.ADMIN,
+                User.is_active == True
+            )
+        )
+        active_admins = result.scalars().all()
         
-        if len(existing_users) > 0:
+        if len(active_admins) > 0:
             raise HTTPException(
                 status_code=403,
                 detail={
                     "error": "Sistema ya inicializado",
-                    "message": "Ya existe al menos un usuario registrado. Este endpoint está desactivado.",
-                    "hint": "Usa /api/v1/auth/login para acceder con tus credenciales existentes"
+                    "message": "Ya existe al menos un administrador activo. Este endpoint está desactivado.",
+                    "hint": "Usa /api/v1/auth/login para acceder con tus credenciales existentes",
+                    "active_admins": len(active_admins)
                 }
             )
         
@@ -170,26 +177,52 @@ async def check_setup_status(db: AsyncSession = Depends(get_db)):
     ```
     """
     try:
+        # Contar todos los usuarios
         result = await db.execute(select(User))
-        users = result.scalars().all()
+        all_users = result.scalars().all()
         
-        if len(users) == 0:
+        # Contar admins activos
+        result_admins = await db.execute(
+            select(User).where(
+                User.role == UserRole.ADMIN,
+                User.is_active == True
+            )
+        )
+        active_admins = result_admins.scalars().all()
+        
+        if len(all_users) == 0:
             return {
                 "initialized": False,
                 "users_count": 0,
-                "message": "Sistema sin inicializar",
+                "active_admins": 0,
+                "message": "⚠️ Sistema sin inicializar - No hay usuarios",
                 "action": "Registra el primer administrador en /api/v1/setup/register-admin",
                 "endpoint": "/api/v1/setup/register-admin",
-                "method": "POST"
+                "method": "POST",
+                "can_register_admin": True
+            }
+        elif len(active_admins) == 0:
+            return {
+                "initialized": True,
+                "users_count": len(all_users),
+                "active_admins": 0,
+                "message": "🚨 EMERGENCIA: Sistema sin administrador activo",
+                "action": "Registra un nuevo administrador en /api/v1/setup/register-admin",
+                "endpoint": "/api/v1/setup/register-admin",
+                "method": "POST",
+                "can_register_admin": True,
+                "warning": "No hay ningún administrador activo en el sistema"
             }
         else:
             return {
                 "initialized": True,
-                "users_count": len(users),
-                "message": "Sistema inicializado correctamente",
+                "users_count": len(all_users),
+                "active_admins": len(active_admins),
+                "message": "✅ Sistema inicializado correctamente",
                 "action": "Usa /api/v1/auth/login para acceder al sistema",
                 "endpoint": "/api/v1/auth/login",
-                "method": "POST"
+                "method": "POST",
+                "can_register_admin": False
             }
     except Exception as e:
         return {
