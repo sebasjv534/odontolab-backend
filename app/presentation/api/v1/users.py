@@ -53,7 +53,18 @@ async def create_user(
     """
     try:
         user = await user_service.create_user(user_data)
-        return UserResponse.model_validate(user)
+        
+        # Convert User model to UserResponse schema
+        return UserResponse(
+            id=str(user.id),
+            email=user.email,
+            first_name=user.first_name,
+            last_name=user.last_name,
+            role=user.role.value,
+            is_active=user.is_active,
+            created_at=user.created_at,
+            updated_at=user.updated_at
+        )
         
     except ValidationError as e:
         raise HTTPException(
@@ -61,9 +72,13 @@ async def create_user(
             detail=str(e)
         )
     except Exception as e:
+        # Log the actual error for debugging
+        import traceback
+        print(f"Error creating user: {str(e)}")
+        print(traceback.format_exc())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to create user"
+            detail=f"Failed to create user: {str(e)}"
         )
 
 
@@ -103,9 +118,24 @@ async def get_users(
         # Calculate total pages
         total_pages = (total + per_page - 1) // per_page
         
+        # Convert User models to UserResponse schemas
+        user_responses = [
+            UserResponse(
+                id=str(user.id),
+                email=user.email,
+                first_name=user.first_name,
+                last_name=user.last_name,
+                role=user.role.value,
+                is_active=user.is_active,
+                created_at=user.created_at,
+                updated_at=user.updated_at
+            )
+            for user in users
+        ]
+        
         return UserListResponse(
             success=True,
-            data=[UserResponse.model_validate(user) for user in users],
+            data=user_responses,
             total=total,
             page=page,
             per_page=per_page,
@@ -113,9 +143,13 @@ async def get_users(
         )
         
     except Exception as e:
+        # Log the actual error for debugging
+        import traceback
+        print(f"Error retrieving users: {str(e)}")
+        print(traceback.format_exc())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to retrieve users"
+            detail=f"Failed to retrieve users: {str(e)}"
         )
 
 
@@ -140,7 +174,17 @@ async def get_user(
     """
     try:
         user = await user_service.get_user_by_id(user_id)
-        return UserResponse.model_validate(user)
+        
+        return UserResponse(
+            id=str(user.id),
+            email=user.email,
+            first_name=user.first_name,
+            last_name=user.last_name,
+            role=user.role.value,
+            is_active=user.is_active,
+            created_at=user.created_at,
+            updated_at=user.updated_at
+        )
         
     except NotFoundError as e:
         raise HTTPException(
@@ -148,9 +192,12 @@ async def get_user(
             detail=str(e)
         )
     except Exception as e:
+        import traceback
+        print(f"Error retrieving user: {str(e)}")
+        print(traceback.format_exc())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to retrieve user"
+            detail=f"Failed to retrieve user: {str(e)}"
         )
 
 
@@ -177,7 +224,17 @@ async def update_user(
     """
     try:
         user = await user_service.update_user(user_id, user_data)
-        return UserResponse.model_validate(user)
+        
+        return UserResponse(
+            id=str(user.id),
+            email=user.email,
+            first_name=user.first_name,
+            last_name=user.last_name,
+            role=user.role.value,
+            is_active=user.is_active,
+            created_at=user.created_at,
+            updated_at=user.updated_at
+        )
         
     except NotFoundError as e:
         raise HTTPException(
@@ -190,9 +247,12 @@ async def update_user(
             detail=str(e)
         )
     except Exception as e:
+        import traceback
+        print(f"Error updating user: {str(e)}")
+        print(traceback.format_exc())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to update user"
+            detail=f"Failed to update user: {str(e)}"
         )
 
 
@@ -217,7 +277,17 @@ async def deactivate_user(
     """
     try:
         user = await user_service.deactivate_user(user_id)
-        return UserResponse.model_validate(user)
+        
+        return UserResponse(
+            id=str(user.id),
+            email=user.email,
+            first_name=user.first_name,
+            last_name=user.last_name,
+            role=user.role.value,
+            is_active=user.is_active,
+            created_at=user.created_at,
+            updated_at=user.updated_at
+        )
         
     except NotFoundError as e:
         raise HTTPException(
@@ -225,9 +295,12 @@ async def deactivate_user(
             detail=str(e)
         )
     except Exception as e:
+        import traceback
+        print(f"Error deactivating user: {str(e)}")
+        print(traceback.format_exc())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to deactivate user"
+            detail=f"Failed to deactivate user: {str(e)}"
         )
 
 
