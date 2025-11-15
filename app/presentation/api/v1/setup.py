@@ -18,8 +18,8 @@ class AdminRegistrationRequest(BaseModel):
     """Schema para registro del primer administrador."""
     email: EmailStr
     password: str = Field(..., min_length=6, description="Contraseña mínimo 6 caracteres")
-    full_name: str = Field(..., min_length=3, description="Nombre completo")
-    phone: str = Field(..., min_length=10, max_length=15, description="Teléfono")
+    first_name: str = Field(..., min_length=2, description="Nombre(s)")
+    last_name: str = Field(..., min_length=2, description="Apellido(s)")
 
 
 @router.post("/setup/register-admin")
@@ -41,9 +41,9 @@ async def register_first_admin(
          -H "Content-Type: application/json" \
          -d '{
            "email": "admin@odontolab.com",
-           "password": "tupassword",
-           "full_name": "Administrador Principal",
-           "phone": "0999999999"
+           "password": "admin123",
+           "first_name": "Administrador",
+           "last_name": "Principal"
          }'
     ```
     
@@ -96,10 +96,10 @@ async def register_first_admin(
         # Crear el primer administrador
         admin = User(
             email=data.email,
-            full_name=data.full_name,
+            first_name=data.first_name,
+            last_name=data.last_name,
             hashed_password=hash_password(data.password),
             role=UserRole.ADMIN,
-            phone=data.phone,
             is_active=True
         )
         
@@ -114,9 +114,10 @@ async def register_first_admin(
             "admin": {
                 "id": admin.id,
                 "email": admin.email,
+                "first_name": admin.first_name,
+                "last_name": admin.last_name,
                 "full_name": admin.full_name,
-                "role": admin.role.value,
-                "phone": admin.phone
+                "role": admin.role.value
             },
             "credentials": {
                 "email": data.email,
