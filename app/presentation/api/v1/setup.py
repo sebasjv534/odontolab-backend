@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from pydantic import BaseModel, EmailStr, Field
 
-from app.core.database import get_db
+from app.core.database import get_db, engine, Base
 from app.core.security import hash_password
 from app.domain.models import User, UserRole
 
@@ -29,6 +29,8 @@ async def register_first_admin(
 ):
     """
     Registra el primer administrador del sistema.
+    
+    **🔧 Crea las tablas automáticamente si no existen**.
     
     **Solo para ambiente educativo**: Este endpoint se desactiva automáticamente 
     después de registrar el primer usuario.
@@ -65,7 +67,11 @@ async def register_first_admin(
     ```
     """
     try:
-        # Verificar si ya existe algún usuario
+        # PASO 1: Crear tablas si no existen
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        
+        # PASO 2: Verificar si ya existe algún usuario
         result = await db.execute(select(User))
         existing_users = result.scalars().all()
         
@@ -103,7 +109,8 @@ async def register_first_admin(
         
         return {
             "status": "success",
-            "message": "Administrador registrado exitosamente",
+            "message": "✅ Administrador registrado exitosamente",
+            "database_initialized": True,
             "admin": {
                 "id": admin.id,
                 "email": admin.email,
@@ -121,7 +128,8 @@ async def register_first_admin(
                 "3. Usa el token para acceder a los endpoints protegidos",
                 "4. Crea otros usuarios (dentistas, recepcionistas) desde /api/v1/users"
             ],
-            "warning": "Este endpoint ahora está desactivado. Solo el primer registro es permitido."
+            "warning": "⚠️ Este endpoint ahora está desactivado. Solo el primer registro es permitido.",
+            "api_docs": "https://odontolab-api.onrender.com/docs"
         }
         
     except HTTPException:
