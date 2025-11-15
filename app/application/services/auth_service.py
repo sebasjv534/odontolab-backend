@@ -62,13 +62,16 @@ class AuthService:
         return LoginResponse(
             access_token=token.access_token,
             token_type=token.token_type,
-            user=UserMeResponse(
-                id=user.id,
-                nombre=user.nombre,
-                email=user.email,
-                role=user.role,
-                is_active=user.is_active
-            )
+            user={
+                "id": str(user.id),
+                "email": user.email,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "full_name": user.full_name,
+                "role": user.role.value,
+                "is_active": user.is_active,
+                "created_at": user.created_at.isoformat()
+            }
         )
     
     async def require_admin(self, user: User) -> bool:

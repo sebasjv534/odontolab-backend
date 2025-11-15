@@ -1,0 +1,1299 @@
+{
+	"info": {
+		"name": "OdontoLab API - Complete Test Suite",
+		"description": "Colección completa para probar la API de OdontoLab con autenticación JWT y todos los endpoints.\n\n**Ambiente Educativo**\n\n**Base URL**: https://odontolab-api.onrender.com\n\n**Credenciales por defecto**:\n- Admin: admin@odontolab.com / admin123",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Setup & Health",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/health",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"health"
+							]
+						},
+						"description": "Verifica que la API y la base de datos estén funcionando correctamente."
+					},
+					"response": []
+				},
+				{
+					"name": "Check Setup Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/setup/status",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"setup",
+								"status"
+							]
+						},
+						"description": "Verifica si el sistema ya está inicializado con usuarios."
+					},
+					"response": []
+				},
+				{
+					"name": "Register First Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Si el registro es exitoso, guardar las credenciales",
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.credentials) {",
+									"        pm.environment.set('ADMIN_EMAIL', response.credentials.email);",
+									"        pm.environment.set('ADMIN_PASSWORD', response.credentials.password);",
+									"        console.log('✅ Admin registrado:', response.credentials.email);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@odontolab.com\",\n  \"password\": \"admin123\",\n  \"first_name\": \"Administrador\",\n  \"last_name\": \"Principal\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/setup/register-admin",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"setup",
+								"register-admin"
+							]
+						},
+						"description": "Registra el primer administrador. Solo funciona una vez."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints públicos para verificar el estado del sistema."
+		},
+		{
+			"name": "2. Authentication",
+			"item": [
+				{
+					"name": "Login (Admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Guardar el token automáticamente",
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('ACCESS_TOKEN', response.access_token);",
+									"    pm.environment.set('TOKEN_TYPE', response.token_type);",
+									"    console.log('✅ Login exitoso. Token guardado.');",
+									"    console.log('Token expira en:', response.expires_in, 'minutos');",
+									"} else {",
+									"    console.log('❌ Login fallido');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "{{ADMIN_EMAIL}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{ADMIN_PASSWORD}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/auth/login",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Inicia sesión y obtiene el token JWT. El token se guarda automáticamente en las variables de entorno."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current User (Me)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/auth/me",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"me"
+							]
+						},
+						"description": "Obtiene la información del usuario actual autenticado."
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/auth/logout",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"logout"
+							]
+						},
+						"description": "Cierra la sesión del usuario actual."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints de autenticación con JWT."
+		},
+		{
+			"name": "3. Users (Admin Only)",
+			"item": [
+				{
+					"name": "Create User (Dentist)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201 || pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('DENTIST_ID', response.id);",
+									"    pm.environment.set('DENTIST_EMAIL', response.email);",
+									"    console.log('✅ Dentista creado:', response.email);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"dentista@odontolab.com\",\n  \"password\": \"dentista123\",\n  \"first_name\": \"Dr. Juan\",\n  \"last_name\": \"Pérez\",\n  \"role\": \"dentist\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/users",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users"
+							]
+						},
+						"description": "Crea un nuevo dentista (requiere rol admin)."
+					},
+					"response": []
+				},
+				{
+					"name": "Create User (Receptionist)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201 || pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('RECEPTIONIST_ID', response.id);",
+									"    pm.environment.set('RECEPTIONIST_EMAIL', response.email);",
+									"    console.log('✅ Recepcionista creado:', response.email);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"recepcion@odontolab.com\",\n  \"password\": \"recepcion123\",\n  \"first_name\": \"María\",\n  \"last_name\": \"González\",\n  \"role\": \"receptionist\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/users",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users"
+							]
+						},
+						"description": "Crea una nueva recepcionista (requiere rol admin)."
+					},
+					"response": []
+				},
+				{
+					"name": "List All Users",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/users",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users"
+							]
+						},
+						"description": "Lista todos los usuarios del sistema (requiere rol admin)."
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/users/{{DENTIST_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"{{DENTIST_ID}}"
+							]
+						},
+						"description": "Obtiene un usuario específico por su ID."
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"dentista@odontolab.com\",\n  \"first_name\": \"Dr. Juan Carlos\",\n  \"last_name\": \"Pérez López\",\n  \"role\": \"dentist\",\n  \"is_active\": true\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/users/{{DENTIST_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"{{DENTIST_ID}}"
+							]
+						},
+						"description": "Actualiza la información de un usuario."
+					},
+					"response": []
+				},
+				{
+					"name": "Deactivate User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/users/{{DENTIST_ID}}/deactivate",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"{{DENTIST_ID}}",
+								"deactivate"
+							]
+						},
+						"description": "Desactiva un usuario (no puede hacer login)."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/users/{{DENTIST_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"{{DENTIST_ID}}"
+							]
+						},
+						"description": "Elimina permanentemente un usuario."
+					},
+					"response": []
+				}
+			],
+			"description": "Gestión de usuarios (solo para administradores)."
+		},
+		{
+			"name": "4. Patients",
+			"item": [
+				{
+					"name": "Create Patient",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201 || pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('PATIENT_ID', response.id);",
+									"    console.log('✅ Paciente creado:', response.full_name);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"Carlos\",\n  \"last_name\": \"Rodríguez\",\n  \"email\": \"carlos@example.com\",\n  \"phone\": \"0987654321\",\n  \"date_of_birth\": \"1985-03-15\",\n  \"address\": \"Calle Principal 123\",\n  \"blood_type\": \"O+\",\n  \"allergies\": [\"Ninguna\"],\n  \"medical_conditions\": [],\n  \"emergency_contact_name\": \"Ana Rodríguez\",\n  \"emergency_contact_phone\": \"0987654322\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/patients",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"patients"
+							]
+						},
+						"description": "Crea un nuevo paciente en el sistema."
+					},
+					"response": []
+				},
+				{
+					"name": "List All Patients",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/patients?skip=0&limit=10",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"patients"
+							],
+							"query": [
+								{
+									"key": "skip",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Lista todos los pacientes con paginación."
+					},
+					"response": []
+				},
+				{
+					"name": "Search Patients",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/patients/search?q=Carlos",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"patients",
+								"search"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "Carlos"
+								}
+							]
+						},
+						"description": "Busca pacientes por nombre, email o teléfono."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Patient by ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/patients/{{PATIENT_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"patients",
+								"{{PATIENT_ID}}"
+							]
+						},
+						"description": "Obtiene un paciente específico por su ID."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Patient",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"Carlos Alberto\",\n  \"last_name\": \"Rodríguez García\",\n  \"email\": \"carlos@example.com\",\n  \"phone\": \"0987654321\",\n  \"date_of_birth\": \"1985-03-15\",\n  \"address\": \"Calle Principal 123, Oficina 5\",\n  \"blood_type\": \"O+\",\n  \"allergies\": [\"Ninguna\"],\n  \"medical_conditions\": [\"Control de presión\"],\n  \"emergency_contact_name\": \"Ana Rodríguez\",\n  \"emergency_contact_phone\": \"0987654322\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/patients/{{PATIENT_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"patients",
+								"{{PATIENT_ID}}"
+							]
+						},
+						"description": "Actualiza la información de un paciente."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Patient",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/patients/{{PATIENT_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"patients",
+								"{{PATIENT_ID}}"
+							]
+						},
+						"description": "Elimina un paciente (solo admin)."
+					},
+					"response": []
+				}
+			],
+			"description": "Gestión de pacientes."
+		},
+		{
+			"name": "5. Medical Records",
+			"item": [
+				{
+					"name": "Create Medical Record",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201 || pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('MEDICAL_RECORD_ID', response.id);",
+									"    console.log('✅ Historia clínica creada:', response.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"patient_id\": \"{{PATIENT_ID}}\",\n  \"appointment_date\": \"2025-11-20T10:00:00\",\n  \"reason\": \"Limpieza dental de rutina\",\n  \"diagnosis\": \"Salud dental en buen estado. Ligera acumulación de sarro.\",\n  \"treatment\": \"Limpieza profunda y aplicación de flúor\",\n  \"notes\": \"Paciente colaborador. Recomendar revisión en 6 meses.\",\n  \"prescriptions\": [\"Enjuague bucal con flúor\"],\n  \"next_appointment\": \"2026-05-20T10:00:00\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/medical-records",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"medical-records"
+							]
+						},
+						"description": "Crea una nueva historia clínica (solo dentistas)."
+					},
+					"response": []
+				},
+				{
+					"name": "List All Medical Records",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/medical-records?skip=0&limit=10",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"medical-records"
+							],
+							"query": [
+								{
+									"key": "skip",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Lista todas las historias clínicas."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Medical Records by Patient",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/medical-records/patient/{{PATIENT_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"medical-records",
+								"patient",
+								"{{PATIENT_ID}}"
+							]
+						},
+						"description": "Obtiene todas las historias clínicas de un paciente."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Upcoming Appointments",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/medical-records/upcoming",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"medical-records",
+								"upcoming"
+							]
+						},
+						"description": "Obtiene las próximas citas programadas."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Medical Record by ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/medical-records/{{MEDICAL_RECORD_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"medical-records",
+								"{{MEDICAL_RECORD_ID}}"
+							]
+						},
+						"description": "Obtiene una historia clínica específica."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Medical Record",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"patient_id\": \"{{PATIENT_ID}}\",\n  \"appointment_date\": \"2025-11-20T10:00:00\",\n  \"reason\": \"Limpieza dental y revisión\",\n  \"diagnosis\": \"Salud dental en buen estado. Ligera acumulación de sarro y caries incipiente en molar.\",\n  \"treatment\": \"Limpieza profunda, aplicación de flúor y obturación\",\n  \"notes\": \"Paciente colaborador. Recomendar revisión en 4 meses por caries tratada.\",\n  \"prescriptions\": [\"Enjuague bucal con flúor\", \"Ibuprofeno 400mg si hay dolor\"],\n  \"next_appointment\": \"2026-03-20T10:00:00\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/medical-records/{{MEDICAL_RECORD_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"medical-records",
+								"{{MEDICAL_RECORD_ID}}"
+							]
+						},
+						"description": "Actualiza una historia clínica existente."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Medical Record",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/medical-records/{{MEDICAL_RECORD_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"medical-records",
+								"{{MEDICAL_RECORD_ID}}"
+							]
+						},
+						"description": "Elimina una historia clínica (solo admin)."
+					},
+					"response": []
+				}
+			],
+			"description": "Gestión de historias clínicas y citas."
+		},
+		{
+			"name": "6. Dashboard",
+			"item": [
+				{
+					"name": "Get Dashboard Stats",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/dashboard/stats",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"dashboard",
+								"stats"
+							]
+						},
+						"description": "Obtiene estadísticas generales según el rol del usuario."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Admin Dashboard",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/dashboard/admin",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"dashboard",
+								"admin"
+							]
+						},
+						"description": "Dashboard completo para administradores."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Dentist Dashboard",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/dashboard/dentist",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"dashboard",
+								"dentist"
+							]
+						},
+						"description": "Dashboard para dentistas con sus citas y pacientes."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Receptionist Dashboard",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/dashboard/receptionist",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"dashboard",
+								"receptionist"
+							]
+						},
+						"description": "Dashboard para recepcionistas con citas del día."
+					},
+					"response": []
+				}
+			],
+			"description": "Estadísticas y dashboards por rol."
+		},
+		{
+			"name": "7. Contact (Public)",
+			"item": [
+				{
+					"name": "Create Contact Request",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"full_name\": \"Patricia López\",\n  \"email\": \"patricia@example.com\",\n  \"phone\": \"0954321098\",\n  \"message\": \"Me gustaría información sobre ortodoncia y precios.\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/contact",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"contact"
+							]
+						},
+						"description": "Crea una solicitud de contacto (endpoint público, no requiere auth)."
+					},
+					"response": []
+				},
+				{
+					"name": "List Contact Requests",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/contact",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"contact"
+							]
+						},
+						"description": "Lista todas las solicitudes de contacto."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Pending Contact Requests",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/contact/pending",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"contact",
+								"pending"
+							]
+						},
+						"description": "Obtiene solo las solicitudes pendientes de atención."
+					},
+					"response": []
+				}
+			],
+			"description": "Gestión de solicitudes de contacto desde el sitio web."
+		}
+	],
+	"variable": [
+		{
+			"key": "BASE_URL",
+			"value": "https://odontolab-api.onrender.com",
+			"type": "string"
+		},
+		{
+			"key": "ACCESS_TOKEN",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "TOKEN_TYPE",
+			"value": "bearer",
+			"type": "string"
+		},
+		{
+			"key": "ADMIN_EMAIL",
+			"value": "admin@odontolab.com",
+			"type": "string"
+		},
+		{
+			"key": "ADMIN_PASSWORD",
+			"value": "admin123",
+			"type": "string"
+		},
+		{
+			"key": "DENTIST_EMAIL",
+			"value": "dentista@odontolab.com",
+			"type": "string"
+		},
+		{
+			"key": "RECEPTIONIST_EMAIL",
+			"value": "recepcion@odontolab.com",
+			"type": "string"
+		},
+		{
+			"key": "PATIENT_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "DENTIST_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "RECEPTIONIST_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "MEDICAL_RECORD_ID",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

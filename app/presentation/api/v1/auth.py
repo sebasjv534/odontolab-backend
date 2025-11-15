@@ -51,11 +51,13 @@ async def login(
 async def get_me(current_user: User = Depends(get_current_user)):
     """Get current user information."""
     return UserMeResponse(
-        id=current_user.id,
-        nombre=current_user.nombre,
+        id=str(current_user.id),
         email=current_user.email,
-        role=current_user.role,
-        is_active=current_user.is_active
+        first_name=current_user.first_name,
+        last_name=current_user.last_name,
+        role=current_user.role.value,
+        is_active=current_user.is_active,
+        created_at=current_user.created_at
     )
 
 
