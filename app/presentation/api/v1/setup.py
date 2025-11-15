@@ -30,7 +30,7 @@ async def register_first_admin(
     """
     Registra el primer administrador del sistema.
     
-    **⚠️ Solo para ambiente educativo**: Este endpoint se desactiva automáticamente 
+    **Solo para ambiente educativo**: Este endpoint se desactiva automáticamente 
     después de registrar el primer usuario.
     
     **Uso**:
@@ -103,7 +103,7 @@ async def register_first_admin(
         
         return {
             "status": "success",
-            "message": "✅ Administrador registrado exitosamente",
+            "message": "Administrador registrado exitosamente",
             "admin": {
                 "id": admin.id,
                 "email": admin.email,
@@ -121,7 +121,7 @@ async def register_first_admin(
                 "3. Usa el token para acceder a los endpoints protegidos",
                 "4. Crea otros usuarios (dentistas, recepcionistas) desde /api/v1/users"
             ],
-            "warning": "⚠️ Este endpoint ahora está desactivado. Solo el primer registro es permitido."
+            "warning": "Este endpoint ahora está desactivado. Solo el primer registro es permitido."
         }
         
     except HTTPException:

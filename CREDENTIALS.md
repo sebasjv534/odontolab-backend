@@ -1,6 +1,6 @@
-# 🔐 Credenciales de Acceso - OdontoLab Backend
+# Credenciales de Acceso - OdontoLab Backend
 
-## 🌐 URLs del Sistema
+## URLs del Sistema
 
 ### Backend API
 
@@ -22,11 +22,11 @@ https://odontolab-backend.onrender.com/redoc
 
 ---
 
-## 👥 Usuarios de Prueba
+## Usuarios de Prueba
 
 Una vez que la base de datos esté inicializada (después del primer deploy), tendrás estos usuarios:
 
-### 🔴 Administrador
+###  Administrador
 
 ```
 Email:    admin@odontolab.com
@@ -36,15 +36,15 @@ Rol:      ADMIN
 
 **Permisos:**
 
-- ✅ Acceso completo a todos los módulos
-- ✅ Gestión de usuarios (crear, editar, eliminar)
-- ✅ Ver todos los pacientes e historias clínicas
-- ✅ Dashboard completo del sistema
-- ✅ Gestión de solicitudes de contacto
+- Acceso completo a todos los módulos
+- Gestión de usuarios (crear, editar, eliminar)
+- Ver todos los pacientes e historias clínicas
+- Dashboard completo del sistema
+- Gestión de solicitudes de contacto
 
 ---
 
-### 🟢 Dentista
+### Dentista
 
 ```
 Email:    dentista@odontolab.com
@@ -54,16 +54,16 @@ Rol:      DENTIST
 
 **Permisos:**
 
-- ✅ Crear y editar historias clínicas propias
-- ✅ Ver y gestionar pacientes
-- ✅ Dashboard de dentista (estadísticas personales)
-- ✅ Ver solicitudes de contacto
-- ❌ No puede gestionar usuarios
-- ❌ No puede eliminar registros
+- Crear y editar historias clínicas propias
+- Ver y gestionar pacientes
+- Dashboard de dentista (estadísticas personales)
+- Ver solicitudes de contacto
+- No puede gestionar usuarios
+- No puede eliminar registros
 
 ---
 
-### 🔵 Recepcionista
+### Recepcionista
 
 ```
 Email:    recepcion@odontolab.com
@@ -73,16 +73,16 @@ Rol:      RECEPTIONIST
 
 **Permisos:**
 
-- ✅ Crear y gestionar pacientes propios
-- ✅ Ver solicitudes de contacto
-- ✅ Dashboard de recepcionista
-- ❌ No puede crear historias clínicas
-- ❌ No puede gestionar usuarios
-- ❌ No puede eliminar registros
+- Crear y gestionar pacientes propios
+- Ver solicitudes de contacto
+- Dashboard de recepcionista
+- No puede crear historias clínicas
+- No puede gestionar usuarios
+- No puede eliminar registros
 
 ---
 
-## 📊 Datos de Prueba Incluidos
+## Datos de Prueba Incluidos
 
 ### Pacientes (3)
 
@@ -97,7 +97,7 @@ Rol:      RECEPTIONIST
 
 ---
 
-## 🚀 Próximos Pasos para Desplegar
+## Próximos Pasos para Desplegar
 
 ### 1. Configurar Variables de Entorno en Render
 
@@ -125,15 +125,15 @@ git push origin main
 
 ### 3. Esperar Deploy de Render
 
-✅ Render detectará los cambios y desplegará (2-3 minutos)
-✅ El servidor arrancará sin inicializar la BD primero
+Render detectará los cambios y desplegará (2-3 minutos)
+El servidor arrancará sin inicializar la BD primero
 
 ### 4. Inicializar Base de Datos MANUALMENTE desde Render Shell
 
-**Esto es necesario en el plan gratuito por los timeouts:**
+Esto es necesario en el plan gratuito por los timeouts:
 
 1. Ve a Render Dashboard → Tu servicio web
-2. Click en **"Shell"** en el menú superior
+2. Click en "Shell" en el menú superior
 3. Ejecuta uno de estos comandos:
 
 ```bash
@@ -166,13 +166,13 @@ https://odontolab-backend.onrender.com/docs
 
 ---
 
-## 🔧 Solución de Problemas
+## Solución de Problemas
 
 ### Si el deploy falla
 
-1. **Ver logs en Render Dashboard** → Logs
-2. **Verificar que DATABASE_URL esté configurada correctamente**
-3. **Asegurarse que la base de datos PostgreSQL esté activa**
+1. Ver logs en Render Dashboard → Logs
+2. Verificar que DATABASE_URL esté configurada correctamente
+3. Asegurarse que la base de datos PostgreSQL esté activa
 
 ### Si init_db.py falla
 
@@ -185,7 +185,7 @@ python init_db.py
 
 ### Si no puedes conectarte desde tu máquina local
 
-La base de datos de Render **solo acepta conexiones desde servicios de Render** por defecto. Para conectarte desde afuera:
+La base de datos de Render solo acepta conexiones desde servicios de Render por defecto. Para conectarte desde afuera:
 
 1. Ve a tu PostgreSQL en Render Dashboard
 2. Ve a "Settings" → "Connections"
@@ -193,7 +193,7 @@ La base de datos de Render **solo acepta conexiones desde servicios de Render** 
 
 ---
 
-## 📱 Conectar Frontend
+## Conectar Frontend
 
 Una vez verificado que el backend funciona, usa estas URLs en tu frontend:
 
@@ -212,9 +212,9 @@ const CONTACT_URL = `${API_BASE_URL}${API_VERSION}/contact`;
 
 ---
 
-## ⚠️ Importante
+## Importante
 
-**CAMBIAR CONTRASEÑAS DESPUÉS DEL PRIMER LOGIN**
+CAMBIAR CONTRASEÑAS DESPUÉS DEL PRIMER LOGIN
 
 Las contraseñas de prueba son conocidas públicamente. Después de verificar que todo funciona:
 
@@ -230,15 +230,15 @@ Las contraseñas de prueba son conocidas públicamente. Después de verificar qu
 
 ---
 
-## 📞 Soporte
+## Soporte
 
-- **Documentación API**: [FRONTEND_API_GUIDE.md](./FRONTEND_API_GUIDE.md)
-- **Implementación**: [IMPLEMENTATION_COMPLETE.md](./IMPLEMENTATION_COMPLETE.md)
-- **Deploy**: [RENDER_DEPLOYMENT.md](./RENDER_DEPLOYMENT.md)
+- Documentación API: [FRONTEND_API_GUIDE.md](./FRONTEND_API_GUIDE.md)
+- Implementación: [IMPLEMENTATION_COMPLETE.md](./IMPLEMENTATION_COMPLETE.md)
+- Deploy: [RENDER_DEPLOYMENT.md](./RENDER_DEPLOYMENT.md)
 
 ---
 
-## ✅ Checklist Final
+## Checklist Final
 
 - [ ] Variables de entorno configuradas en Render
 - [ ] Push realizado a GitHub
@@ -252,4 +252,4 @@ Las contraseñas de prueba son conocidas públicamente. Después de verificar qu
 
 ---
 
-**¡Tu backend está listo para usarse!** 🚀
+¡Tu backend está listo para usarse!
