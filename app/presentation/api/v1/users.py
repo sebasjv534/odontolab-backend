@@ -269,6 +269,15 @@ async def deactivate_user(
     """
     Deactivate a user (Admin only).
     
+    **Soft delete**: User cannot login but data is preserved.
+    
+    **Safety Validations**:
+    - ❌ Cannot deactivate yourself
+    - ❌ Cannot deactivate the last active administrator
+    - ✅ Must be authenticated as admin
+    
+    **Recommendation**: Use this instead of DELETE for safer user management
+    
     Args:
         user_id: User ID
         
@@ -276,7 +285,7 @@ async def deactivate_user(
         Updated user information
     """
     try:
-        user = await user_service.deactivate_user(user_id)
+        user = await user_service.deactivate_user(user_id, current_user)
         
         return UserResponse(
             id=str(user.id),
@@ -294,6 +303,11 @@ async def deactivate_user(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
         )
+    except ValidationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
     except Exception as e:
         import traceback
         print(f"Error deactivating user: {str(e)}")
@@ -306,7 +320,7 @@ async def deactivate_user(
 
 @router.delete(
     "/{user_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
+    status_code=status.HTTP_200_OK,
     summary="Delete user"
 )
 async def delete_user(
@@ -317,23 +331,41 @@ async def delete_user(
     """
     Delete a user permanently (Admin only).
     
+    **⚠️ DANGER ZONE**: This action is irreversible!
+    
+    **Safety Validations**:
+    - ❌ Cannot delete yourself
+    - ❌ Cannot delete the last active administrator
+    - ✅ Must be authenticated as admin
+    
+    **Recommendation**: Use PATCH /{user_id}/deactivate instead for soft delete
+    
     Args:
-        user_id: User ID
+        user_id: User ID to delete
         
     Returns:
-        No content
+        Deletion confirmation with details
     """
     try:
-        await user_service.delete_user(user_id)
-        return None
+        # Pasar current_user para validaciones de seguridad
+        result = await user_service.delete_user(user_id, current_user)
+        return result
         
     except NotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
         )
+    except ValidationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
     except Exception as e:
+        import traceback
+        print(f"Error deleting user: {str(e)}")
+        print(traceback.format_exc())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to delete user"
+            detail=f"Failed to delete user: {str(e)}"
         )

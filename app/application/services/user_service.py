@@ -73,19 +73,111 @@ class UserService:
         updated_user = await self.user_repository.update(user_id, user_dict)
         return updated_user
     
-    async def deactivate_user(self, user_id: UUID) -> User:
-        """Deactivate a user."""
+    async def deactivate_user(self, user_id: UUID, current_user: Optional[User] = None) -> User:
+        """
+        Deactivate a user (soft delete).
+        
+        Args:
+            user_id: ID of user to deactivate
+            current_user: Current authenticated user
+            
+        Returns:
+            Deactivated user
+            
+        Raises:
+            NotFoundError: User not found
+            ValidationError: Cannot deactivate (last admin, self-deactivation)
+        """
+        # 1. Verificar que el usuario exista
+        user_to_deactivate = await self.user_repository.get_by_id(user_id)
+        if not user_to_deactivate:
+            raise NotFoundError(f"User with ID {user_id} not found")
+        
+        # 2. VALIDACIÓN: No permitir auto-desactivación
+        if current_user and current_user.id == user_id:
+            raise ValidationError(
+                "Cannot deactivate your own account. "
+                "Ask another administrator to deactivate your account if needed."
+            )
+        
+        # 3. VALIDACIÓN: Si es admin, verificar que no sea el último activo
+        if user_to_deactivate.role == UserRole.ADMIN and user_to_deactivate.is_active:
+            active_admins = await self.user_repository.get_by_role(UserRole.ADMIN)
+            active_count = sum(1 for admin in active_admins if admin.is_active)
+            
+            if active_count <= 1:
+                raise ValidationError(
+                    "Cannot deactivate the last active administrator. "
+                    "The system must have at least one active admin. "
+                    "Create another administrator first, then deactivate this one."
+                )
+        
+        # 4. Desactivar el usuario
         user = await self.user_repository.deactivate(user_id)
         if not user:
             raise NotFoundError("User not found")
         return user
     
-    async def delete_user(self, user_id: UUID) -> bool:
-        """Delete a user (hard delete)."""
+    async def delete_user(self, user_id: UUID, current_user: Optional[User] = None) -> dict:
+        """
+        Delete a user (hard delete) with safety validations.
+        
+        Args:
+            user_id: ID of user to delete
+            current_user: Current authenticated user (to prevent self-deletion)
+            
+        Returns:
+            dict with deletion details
+            
+        Raises:
+            NotFoundError: User not found
+            ValidationError: Cannot delete (last admin, self-deletion, etc.)
+        """
+        # 1. Verificar que el usuario a eliminar exista
+        user_to_delete = await self.user_repository.get_by_id(user_id)
+        if not user_to_delete:
+            raise NotFoundError(f"User with ID {user_id} not found")
+        
+        # 2. VALIDACIÓN: No permitir auto-eliminación
+        if current_user and current_user.id == user_id:
+            raise ValidationError(
+                "Cannot delete your own account. "
+                "Ask another administrator to delete your account if needed."
+            )
+        
+        # 3. VALIDACIÓN: Si es admin, verificar que no sea el último
+        if user_to_delete.role == UserRole.ADMIN:
+            active_admins_count = await self.user_repository.count_by_role(UserRole.ADMIN)
+            
+            # Contar solo los activos
+            active_admins = await self.user_repository.get_by_role(UserRole.ADMIN)
+            active_count = sum(1 for admin in active_admins if admin.is_active)
+            
+            if active_count <= 1:
+                raise ValidationError(
+                    "Cannot delete the last active administrator. "
+                    "The system must have at least one active admin. "
+                    "Create another administrator first, then delete this one."
+                )
+        
+        # 4. Eliminar el usuario
         success = await self.user_repository.delete(user_id)
+        
         if not success:
-            raise NotFoundError("User not found")
-        return success
+            raise NotFoundError("User not found or already deleted")
+        
+        # 5. Retornar detalles de la eliminación
+        return {
+            "success": True,
+            "deleted_user": {
+                "id": str(user_id),
+                "email": user_to_delete.email,
+                "full_name": user_to_delete.full_name,
+                "role": user_to_delete.role.value
+            },
+            "message": f"User '{user_to_delete.full_name}' ({user_to_delete.role.value}) deleted successfully",
+            "deleted_by": str(current_user.id) if current_user else "system"
+        }
     
     async def count_users_by_role(self, role: UserRole) -> int:
         """Count users by role."""
