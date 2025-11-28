@@ -8,7 +8,10 @@ data access operations, following the repository pattern.
 from abc import ABC, abstractmethod
 from typing import Optional, List
 from uuid import UUID
-from app.domain.models.clinical_models import Patient, ClinicalIntervention
+
+# TODO: These models will be implemented in future phases (MVP Phase 2-4)
+# from app.domain.models.clinical_models import Patient, ClinicalIntervention
+from app.domain.models import Patient
 
 
 class IPatientRepository(ABC):

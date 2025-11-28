@@ -10,24 +10,25 @@ from uuid import UUID
 from datetime import datetime
 from sqlalchemy.exc import IntegrityError
 
-from app.domain.models.clinical_models import Patient, ClinicalRecord, Intervention
-from app.domain.schemas.clinical_schemas import (
-    PatientCreate,
-    PatientUpdate,
-    PatientResponse,
-    ClinicalRecordCreate,
-    ClinicalRecordUpdate,
-    ClinicalRecordResponse,
-    InterventionCreate,
-    InterventionUpdate,
-    InterventionResponse
-)
-from app.application.interfaces.clinical_repository import IPatientRepository, IClinicalInterventionRepository
-from app.application.exceptions import (
-    PatientNotFoundError,
-    PatientAlreadyExistsError,
-    ClinicalRecordNotFoundError,
-    InterventionNotFoundError,
+# TODO: These models will be implemented in future phases (MVP Phase 2-4)
+# from app.domain.models.clinical_models import Patient, ClinicalRecord, Intervention
+# from app.domain.schemas.clinical_schemas import (
+#     PatientCreate,
+#     PatientUpdate,
+#     PatientResponse,
+#     ClinicalRecordCreate,
+#     ClinicalRecordUpdate,
+#     ClinicalRecordResponse,
+#     InterventionCreate,
+#     InterventionUpdate,
+#     InterventionResponse
+# )
+# from app.application.interfaces.clinical_repository import IPatientRepository, IClinicalInterventionRepository
+# from app.application.exceptions import (
+#     PatientNotFoundError,
+#     PatientAlreadyExistsError,
+#     ClinicalRecordNotFoundError,
+#     InterventionNotFoundError,
     ValidationError
 )
 

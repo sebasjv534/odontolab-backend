@@ -13,9 +13,14 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import or_, func
 
-from app.domain.models.clinical_models import Patient, ClinicalIntervention
-from app.application.interfaces.clinical_repository import IPatientRepository, IClinicalInterventionRepository
-from app.application.exceptions import ValidationError, PatientAlreadyExistsError
+# TODO: These models will be implemented in future phases
+# from app.domain.models.clinical_models import Patient, ClinicalIntervention
+# from app.application.interfaces.clinical_repository import IPatientRepository, IClinicalInterventionRepository
+# from app.application.exceptions import ValidationError, PatientAlreadyExistsError
+
+# TEMPORARY: Using main patient model until clinical models are fully implemented
+from app.domain.models import Patient
+from app.application.exceptions import ValidationError
 
 
 class PatientRepository(IPatientRepository):

@@ -9,7 +9,7 @@ from pydantic import BaseModel, EmailStr, Field, validator
 from typing import Optional, List
 from datetime import datetime, date
 from decimal import Decimal
-from app.domain.models.clinical_models import Gender, InterventionType
+from app.domain.models.enums import Gender, InterventionType
 
 
 class PatientCreateRequest(BaseModel):

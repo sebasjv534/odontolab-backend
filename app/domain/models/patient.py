@@ -5,10 +5,12 @@ This module defines the Patient entity following the odontolab_database.sql sche
 """
 
 import uuid
-from sqlalchemy import Column, String, DateTime, func, ForeignKey, Text, Date
+from datetime import date
+from sqlalchemy import Column, String, DateTime, func, ForeignKey, Text, Date, Enum as SQLAEnum
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 from app.core.database import Base
+from app.domain.models.enums import Gender
 
 
 class Patient(Base):
@@ -20,11 +22,13 @@ class Patient(Base):
     
     Attributes:
         id (UUID): Unique identifier for the patient
+        patient_number (str): Unique patient identification number (MVP field)
         first_name (str): Patient's first name
         last_name (str): Patient's last name
         email (str): Patient's email address
         phone (str): Patient's phone number
         date_of_birth (date): Patient's birth date
+        gender (Gender): Patient's gender (MVP field)
         address (str): Patient's residential address (optional)
         emergency_contact_name (str): Emergency contact person name (optional)
         emergency_contact_phone (str): Emergency contact phone number (optional)
@@ -41,11 +45,14 @@ class Patient(Base):
     __tablename__ = "patients"
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    patient_number = Column(String(20), unique=True, nullable=True, index=True, 
+                           comment="Unique patient identification number")
     first_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)
     email = Column(String(255), nullable=False, index=True)
     phone = Column(String(20), nullable=False, index=True)
     date_of_birth = Column(Date, nullable=False)
+    gender = Column(SQLAEnum(Gender), nullable=True, comment="Patient gender")
     address = Column(Text, nullable=True)
     emergency_contact_name = Column(String(100), nullable=True)
     emergency_contact_phone = Column(String(20), nullable=True)
@@ -70,7 +77,6 @@ class Patient(Base):
     @property
     def age(self) -> int:
         """Calculates and returns the patient's current age."""
-        from datetime import date
         today = date.today()
         return today.year - self.date_of_birth.year - (
             (today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day)

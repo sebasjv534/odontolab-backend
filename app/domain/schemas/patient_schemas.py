@@ -8,6 +8,7 @@ the API_SUMMARY specifications.
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 from datetime import date, datetime
+from app.domain.models.enums import Gender
 
 
 class PatientBase(BaseModel):
@@ -17,6 +18,7 @@ class PatientBase(BaseModel):
     email: EmailStr = Field(..., description="Patient's email address")
     phone: str = Field(..., min_length=7, max_length=20, description="Patient's phone number")
     date_of_birth: date = Field(..., description="Patient's birth date")
+    gender: Optional[Gender] = Field(None, description="Patient's gender")
     address: Optional[str] = Field(None, description="Patient's address")
     emergency_contact_name: Optional[str] = Field(None, max_length=100, description="Emergency contact name")
     emergency_contact_phone: Optional[str] = Field(None, max_length=20, description="Emergency contact phone")
@@ -26,15 +28,18 @@ class PatientBase(BaseModel):
 
 class PatientCreate(PatientBase):
     """Schema for creating a new patient."""
+    patient_number: Optional[str] = Field(None, max_length=20, description="Optional patient identification number")
     
     model_config = {
         "json_schema_extra": {
             "example": {
+                "patient_number": "PAT-2025-0001",
                 "first_name": "María",
                 "last_name": "García Rodríguez",
                 "email": "maria.garcia@email.com",
                 "phone": "3001234567",
                 "date_of_birth": "1990-05-15",
+                "gender": "female",
                 "address": "Calle 45 #23-12, Bogotá",
                 "emergency_contact_name": "Pedro García",
                 "emergency_contact_phone": "3009876543",
@@ -47,11 +52,13 @@ class PatientCreate(PatientBase):
 
 class PatientUpdate(BaseModel):
     """Schema for updating patient information."""
+    patient_number: Optional[str] = Field(None, max_length=20, description="Patient identification number")
     first_name: Optional[str] = Field(None, min_length=1, max_length=100, description="Patient's first name")
     last_name: Optional[str] = Field(None, min_length=1, max_length=100, description="Patient's last name")
     email: Optional[EmailStr] = Field(None, description="Patient's email address")
     phone: Optional[str] = Field(None, min_length=7, max_length=20, description="Patient's phone number")
     date_of_birth: Optional[date] = Field(None, description="Patient's birth date")
+    gender: Optional[Gender] = Field(None, description="Patient's gender")
     address: Optional[str] = Field(None, description="Patient's address")
     emergency_contact_name: Optional[str] = Field(None, max_length=100, description="Emergency contact name")
     emergency_contact_phone: Optional[str] = Field(None, max_length=20, description="Emergency contact phone")
@@ -62,6 +69,7 @@ class PatientUpdate(BaseModel):
         "json_schema_extra": {
             "example": {
                 "phone": "3001234567",
+                "gender": "female",
                 "address": "Calle 45 #23-12, Bogotá",
                 "medical_conditions": "Hipertensión controlada, Diabetes tipo 2"
             }
@@ -72,11 +80,13 @@ class PatientUpdate(BaseModel):
 class PatientResponse(BaseModel):
     """Schema for patient response."""
     id: str = Field(..., description="Patient's unique identifier")
+    patient_number: Optional[str] = Field(None, description="Patient identification number")
     first_name: str = Field(..., description="Patient's first name")
     last_name: str = Field(..., description="Patient's last name")
     email: str = Field(..., description="Patient's email address")
     phone: str = Field(..., description="Patient's phone number")
     date_of_birth: date = Field(..., description="Patient's birth date")
+    gender: Optional[str] = Field(None, description="Patient's gender")
     address: Optional[str] = Field(None, description="Patient's address")
     emergency_contact_name: Optional[str] = Field(None, description="Emergency contact name")
     emergency_contact_phone: Optional[str] = Field(None, description="Emergency contact phone")
@@ -91,11 +101,13 @@ class PatientResponse(BaseModel):
         "json_schema_extra": {
             "example": {
                 "id": "650e8400-e29b-41d4-a716-446655440001",
+                "patient_number": "PAT-2025-0001",
                 "first_name": "María",
                 "last_name": "García Rodríguez",
                 "email": "maria.garcia@email.com",
                 "phone": "3001234567",
                 "date_of_birth": "1990-05-15",
+                "gender": "female",
                 "address": "Calle 45 #23-12, Bogotá",
                 "emergency_contact_name": "Pedro García",
                 "emergency_contact_phone": "3009876543",

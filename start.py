@@ -17,7 +17,9 @@ async def init_database():
         from app.domain.models.user_model import User
         from app.domain.models.role_model import Role
         from app.domain.models.profile_models import DentistProfile, ReceptionistProfile, AdministratorProfile
-        from app.domain.models.clinical_models import Patient, ClinicalIntervention
+        # TODO: These models will be implemented in future phases (MVP Phase 2-4)
+        # from app.domain.models.clinical_models import Patient, ClinicalIntervention
+        from app.domain.models import Patient, MedicalRecord, ContactRequest
         
         print("🗄️ Initializing database tables...")
         
