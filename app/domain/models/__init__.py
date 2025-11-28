@@ -9,7 +9,8 @@ from .user_model import User, UserRole
 from .patient import Patient
 from .medical_record import MedicalRecord
 from .contact_request import ContactRequest, ContactStatus
-from .enums import Gender, InterventionType
+from .appointment import Appointment, AppointmentReminder
+from .enums import Gender, InterventionType, AppointmentStatus, ReminderType
 
 __all__ = [
     "User",
@@ -18,6 +19,10 @@ __all__ = [
     "MedicalRecord",
     "ContactRequest",
     "ContactStatus",
+    "Appointment",
+    "AppointmentReminder",
     "Gender",
     "InterventionType",
+    "AppointmentStatus",
+    "ReminderType",
 ]

@@ -65,6 +65,7 @@ class Patient(Base):
     # Relationships
     creator = relationship("User", back_populates="patients_created", foreign_keys=[created_by])
     medical_records = relationship("MedicalRecord", back_populates="patient", cascade="all, delete-orphan")
+    appointments = relationship("Appointment", back_populates="patient", cascade="all, delete-orphan")
     
     def __repr__(self) -> str:
         return f"<Patient(name='{self.full_name}', email='{self.email}')>"

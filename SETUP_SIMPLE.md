@@ -39,6 +39,7 @@ curl -X POST https://odontolab-api.onrender.com/api/v1/setup/register-admin \
 2. Busca el endpoint: `POST /api/v1/setup/register-admin`
 3. Click "Try it out"
 4. Llena el JSON:
+
    ```json
    {
      "email": "admin@odontolab.com",
@@ -47,6 +48,7 @@ curl -X POST https://odontolab-api.onrender.com/api/v1/setup/register-admin \
      "phone": "0999999999"
    }
    ```
+
 5. Click "Execute"
 
 #### Opción C: Desde Postman/Insomnia
@@ -107,11 +109,13 @@ curl -X POST https://odontolab-api.onrender.com/api/v1/auth/login \
 ### ¿Es seguro para producción?
 
 **Para ambiente educativo**: ✅ SÍ
+
 - El endpoint se **auto-desactiva** después del primer registro
 - Solo permite registrar cuando NO hay usuarios
 - No requiere tokens ni configuración compleja
 
 **Para producción real**: ⚠️ Considera:
+
 - Agregar un token de setup inicial
 - Usar variables de entorno
 - O simplemente inicializar manualmente y desactivar el endpoint
@@ -127,6 +131,7 @@ GET /api/v1/setup/status
 ```
 
 **Respuesta cuando NO hay usuarios**:
+
 ```json
 {
   "initialized": false,
@@ -139,6 +144,7 @@ GET /api/v1/setup/status
 ```
 
 **Respuesta cuando YA hay usuarios**:
+
 ```json
 {
   "initialized": true,
@@ -210,12 +216,14 @@ Content-Type: application/json
 Si necesitas reiniciar todo (eliminar usuarios y volver a empezar):
 
 ### Opción 1: Desde Render Dashboard
+
 1. Ve a tu base de datos PostgreSQL
 2. Connect (o Shell si tienes plan pagado)
 3. Ejecuta: `DELETE FROM users;`
 4. Ahora puedes registrar un nuevo admin
 
 ### Opción 2: Recrear la Base de Datos
+
 1. Render Dashboard → Tu PostgreSQL DB
 2. Suspend → Delete
 3. Crear nueva DB
@@ -233,6 +241,7 @@ https://odontolab-api.onrender.com/docs
 ```
 
 Busca la sección **"Setup"**:
+
 - `GET /api/v1/setup/status` - Verificar estado
 - `POST /api/v1/setup/register-admin` - Registrar admin
 
@@ -249,15 +258,17 @@ Busca la sección **"Setup"**:
 
 ---
 
-## 🎉 ¡Súper Simple!
+## 🎉 ¡Súper Simple
 
 Ya no necesitas:
+
 - ❌ Shell
 - ❌ Scripts de inicialización en el build
 - ❌ Tokens complejos
 - ❌ Configuración previa
 
 Solo:
+
 - ✅ Desplegar
 - ✅ Una petición HTTP
 - ✅ ¡Listo!

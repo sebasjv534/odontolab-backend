@@ -131,7 +131,6 @@ He creado una colección **completa y automatizada** de Postman con:
 
 #### 5️⃣ **Medical Records**
 
-```
 1. Create Medical Record ✅
    → Crea una historia clínica para el paciente
    → Requiere PATIENT_ID (ya guardado)
@@ -154,7 +153,7 @@ He creado una colección **completa y automatizada** de Postman con:
 
 7. Delete Medical Record (opcional)
    → Elimina la historia (solo admin)
-```
+
 
 #### 6️⃣ **Dashboard**
 
@@ -195,6 +194,7 @@ He creado una colección **completa y automatizada** de Postman con:
 Cuando haces login, el token se guarda automáticamente en `ACCESS_TOKEN`. Todos los demás requests lo usan automáticamente.
 
 **Script en Login:**
+
 ```javascript
 if (pm.response.code === 200) {
     const response = pm.response.json();
@@ -208,6 +208,7 @@ if (pm.response.code === 200) {
 Cuando creas un usuario, paciente o historia clínica, el ID se guarda automáticamente.
 
 **Ejemplo en Create Patient:**
+
 ```javascript
 if (pm.response.code === 201) {
     const response = pm.response.json();
@@ -219,6 +220,7 @@ if (pm.response.code === 201) {
 ### 3. **Variables Dinámicas**
 
 Los endpoints usan variables automáticamente:
+
 - `{{BASE_URL}}` → URL de tu API
 - `{{ACCESS_TOKEN}}` → Token JWT actual
 - `{{PATIENT_ID}}` → ID del último paciente creado
@@ -275,6 +277,7 @@ Para ver: **View → Show Postman Console** (Ctrl+Alt+C)
 ### Variables de Entorno
 
 Para ver los valores guardados:
+
 1. Click en el **ojo** 👁️ (esquina superior derecha)
 2. Verás todas las variables y sus valores actuales
 
@@ -282,28 +285,32 @@ Para ver los valores guardados:
 
 ## 🔄 Probar con Diferentes Roles
 
-### Como Dentista:
+### Como Dentista
 
 1. Primero crea el dentista (ya hecho arriba)
 2. Haz logout del admin
 3. En **Login**, cambia:
+
    ```
    username: {{DENTIST_EMAIL}}
    password: dentista123
    ```
+
 4. Ahora puedes:
    - ✅ Crear historias clínicas
    - ✅ Ver pacientes
    - ❌ NO crear usuarios (solo admin)
 
-### Como Recepcionista:
+### Como Recepcionista
 
 1. Haz logout
 2. En **Login**, cambia:
+
    ```
    username: {{RECEPTIONIST_EMAIL}}
    password: recepcion123
    ```
+
 3. Ahora puedes:
    - ✅ Crear pacientes
    - ✅ Ver historias clínicas
@@ -400,6 +407,7 @@ Después de ejecutar las pruebas, verifica:
 ### ❌ Error: "Unauthorized"
 
 **Solución**:
+
 1. Verifica que hiciste login primero
 2. Verifica que el token esté en `ACCESS_TOKEN` (ojo 👁️)
 3. El token expira en 60 minutos → haz login nuevamente
@@ -407,6 +415,7 @@ Después de ejecutar las pruebas, verifica:
 ### ❌ Error: "Variable PATIENT_ID is not defined"
 
 **Solución**:
+
 1. Primero ejecuta "Create Patient"
 2. El ID se guardará automáticamente
 3. Luego ejecuta los endpoints que usan ese ID
@@ -414,6 +423,7 @@ Después de ejecutar las pruebas, verifica:
 ### ❌ Error: "Forbidden - Insufficient permissions"
 
 **Solución**:
+
 - Verifica tu rol actual (GET /auth/me)
 - Algunos endpoints son solo para admin
 - Otros solo para dentistas
@@ -432,17 +442,18 @@ Después de ejecutar las pruebas, verifica:
 
 ## 📚 Recursos Adicionales
 
-- **Swagger UI**: https://odontolab-api.onrender.com/docs
-- **ReDoc**: https://odontolab-api.onrender.com/redoc
-- **Postman Learning Center**: https://learning.postman.com
+- **Swagger UI**: <https://odontolab-api.onrender.com/docs>
+- **ReDoc**: <https://odontolab-api.onrender.com/redoc>
+- **Postman Learning Center**: <https://learning.postman.com>
 
 ---
 
-## 🎉 ¡Listo!
+## 🎉 ¡Listo
 
 Ahora tienes una colección **completa y profesional** de Postman para probar toda tu API.
 
 **Características principales:**
+
 - ✅ 50+ requests organizados
 - ✅ Autenticación automática
 - ✅ Variables dinámicas

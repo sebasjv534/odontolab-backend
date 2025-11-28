@@ -85,5 +85,15 @@ class BusinessLogicError(AppError):
     def __init__(self, message="Business logic error"):
         super().__init__(message, code="business_logic_error")
 
+class AppointmentNotFoundError(NotFoundError):
+    """Appointment not found."""
+    def __init__(self, message="Appointment not found"):
+        super().__init__(message)
+
+class AppointmentConflictError(ConflictError):
+    """Appointment scheduling conflict."""
+    def __init__(self, message="Appointment scheduling conflict"):
+        super().__init__(message)
+
 # Alias for compatibility
 PermissionError = AuthorizationError

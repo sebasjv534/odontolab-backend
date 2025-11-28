@@ -64,6 +64,10 @@ class User(Base):
     # Relationships
     patients_created = relationship("Patient", back_populates="creator", foreign_keys="Patient.created_by")
     medical_records = relationship("MedicalRecord", back_populates="dentist", foreign_keys="MedicalRecord.dentist_id")
+    appointments_as_dentist = relationship("Appointment", back_populates="dentist", 
+                                          foreign_keys="Appointment.dentist_id")
+    appointments_created = relationship("Appointment", back_populates="creator", 
+                                       foreign_keys="Appointment.created_by")
     
     def __repr__(self) -> str:
         return f"<User(email='{self.email}', role='{self.role.value}')>"

@@ -7,16 +7,20 @@
 **Validaciones Implementadas:**
 
 #### ✅ 1. Verificación de Existencia
+
 - El usuario debe existir en la base de datos
 - Error 404 si no se encuentra
 
 #### ✅ 2. Prevención de Auto-Eliminación
+
 ```
 ❌ NO puedes eliminar tu propia cuenta
 ```
+
 **Motivo**: Evita que un admin se elimine accidentalmente y pierda acceso al sistema.
 
 **Error**:
+
 ```json
 {
   "detail": "Cannot delete your own account. Ask another administrator to delete your account if needed."
@@ -24,12 +28,15 @@
 ```
 
 #### ✅ 3. Protección del Último Admin
+
 ```
 ❌ NO puedes eliminar al último administrador activo
 ```
+
 **Motivo**: El sistema DEBE tener al menos 1 admin activo para gestión.
 
 **Error**:
+
 ```json
 {
   "detail": "Cannot delete the last active administrator. The system must have at least one active admin. Create another administrator first, then delete this one."
@@ -37,6 +44,7 @@
 ```
 
 #### ✅ 4. Respuesta Detallada
+
 ```json
 {
   "success": true,
@@ -58,16 +66,20 @@
 **Validaciones Implementadas:**
 
 #### ✅ 1. Verificación de Existencia
+
 - El usuario debe existir en la base de datos
 - Error 404 si no se encuentra
 
 #### ✅ 2. Prevención de Auto-Desactivación
+
 ```
 ❌ NO puedes desactivar tu propia cuenta
 ```
+
 **Motivo**: Evita que un admin se desactive accidentalmente.
 
 **Error**:
+
 ```json
 {
   "detail": "Cannot deactivate your own account. Ask another administrator to deactivate your account if needed."
@@ -75,12 +87,15 @@
 ```
 
 #### ✅ 3. Protección del Último Admin Activo
+
 ```
 ❌ NO puedes desactivar al último administrador activo
 ```
+
 **Motivo**: El sistema DEBE tener al menos 1 admin activo.
 
 **Error**:
+
 ```json
 {
   "detail": "Cannot deactivate the last active administrator. The system must have at least one active admin. Create another administrator first, then deactivate this one."
@@ -96,22 +111,26 @@
 **Validaciones Implementadas:**
 
 #### ✅ 1. Registro Solo Sin Admin Activo
+
 ```
 ✅ Permite registro si NO hay ningún admin activo
 ❌ Bloquea registro si YA hay un admin activo
 ```
 
 **Casos de Uso**:
+
 1. **Primera vez**: No hay usuarios → Permitir
 2. **Emergencia**: Hay usuarios pero NO hay admin activo → Permitir
 3. **Normal**: Ya hay admin activo → Bloquear
 
 #### ✅ 2. Status Endpoint
+
 ```
 GET /api/v1/setup/status
 ```
 
 Responde con:
+
 ```json
 {
   "initialized": true,
@@ -123,6 +142,7 @@ Responde con:
 ```
 
 O en caso de emergencia:
+
 ```json
 {
   "initialized": true,
@@ -208,28 +228,29 @@ O:
 
 ## 🔧 Recomendaciones
 
-### Para Desarrollo/Testing:
+### Para Desarrollo/Testing
 
 1. **Crea múltiples admins** antes de probar eliminaciones
 2. **Usa DEACTIVATE** en lugar de DELETE (más seguro)
 3. **Verifica el status** antes de eliminar: `GET /setup/status`
 4. **Guarda las credenciales** del admin principal en lugar seguro
 
-### Para Producción:
+### Para Producción
 
 1. **NUNCA elimines usuarios** → Usa DEACTIVATE
 2. **Mantén al menos 2 admins activos** (redundancia)
 3. **Implementa roles de auditoría** para revisar eliminaciones
 4. **Haz backups regulares** de la base de datos
 
-### Mejores Prácticas:
+### Mejores Prácticas
 
 ```
 ✅ RECOMENDADO: PATCH /users/{id}/deactivate
 ❌ EVITAR: DELETE /users/{id}
 ```
 
-**Motivo**: 
+**Motivo**:
+
 - Deactivate preserva datos y relaciones
 - Delete es irreversible
 - Deactivate permite reactivar si fue error
@@ -239,6 +260,7 @@ O:
 ## 🚨 Logs de Auditoría
 
 Cada eliminación registra:
+
 ```python
 {
   "deleted_user": {
@@ -257,6 +279,7 @@ Cada eliminación registra:
 ## 📞 Soporte
 
 Si necesitas eliminar al último admin (emergencia):
+
 1. Contacta al equipo de desarrollo
 2. Acceso directo a la base de datos
 3. O usa el endpoint `/setup/register-admin` si está habilitado

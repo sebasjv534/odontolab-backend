@@ -12,6 +12,7 @@ from .patients import router as patients_router
 from .medical_records import router as medical_records_router
 from .dashboard import router as dashboard_router
 from .contact import router as contact_router
+from .appointments import router as appointments_router
 from .init_db_endpoint import router as init_db_router
 from .setup import router as setup_router
 
@@ -28,6 +29,9 @@ api_router.include_router(users_router, prefix="/users", tags=["Users"])
 
 # Include patient management routes
 api_router.include_router(patients_router, prefix="/patients", tags=["Patients"])
+
+# Include appointment management routes
+api_router.include_router(appointments_router, prefix="/appointments", tags=["Appointments"])
 
 # Include medical records routes
 api_router.include_router(medical_records_router, prefix="/medical-records", tags=["Medical Records"])

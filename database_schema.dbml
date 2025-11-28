@@ -1,0 +1,875 @@
+// ========================================================================
+// ODONTOLAB - Sistema ERP para Clínicas Dentales
+// ========================================================================
+// Versión: 2.0 (MVP Completo)
+// Fecha: 26 de Noviembre 2025
+// Tecnología: PostgreSQL 14+ (Render Free Tier)
+// ORM: SQLAlchemy 2.0 (Async)
+// ========================================================================
+// 
+// INSTRUCCIONES DE USO:
+// 1. Visita: https://dbdiagram.io/d
+// 2. Copia todo este código y pégalo en el editor
+// 3. El diagrama se generará automáticamente
+// 4. Exporta como: SQL, PDF, PNG de alta resolución
+// ========================================================================
+
+Project OdontoLab {
+  database_type: 'PostgreSQL'
+  Note: '''
+    # Sistema ERP para Clínicas Dentales
+    
+    **Características:**
+    - Gestión completa de citas con recordatorios
+    - Facturación y control de pagos
+    - Historial clínico digital con odontograma
+    - Control de inventario de materiales
+    - Auditoría completa de operaciones
+    - Gestión documental (radiografías, consentimientos)
+    
+    **Stack Técnico:**
+    - Backend: FastAPI (Python 3.11+)
+    - Database: PostgreSQL 14+
+    - ORM: SQLAlchemy 2.0 Async
+    - Auth: JWT (python-jose)
+    - Deploy: Render.com
+  '''
+}
+
+// ========================================================================
+// ENUMERACIONES
+// ========================================================================
+
+Enum user_role {
+  admin [note: 'Administrador del sistema']
+  dentist [note: 'Odontólogo/Dentista']
+  receptionist [note: 'Recepcionista']
+}
+
+Enum gender {
+  male [note: 'Masculino']
+  female [note: 'Femenino']
+  other [note: 'Otro/No especifica']
+}
+
+Enum appointment_status {
+  scheduled [note: 'Cita agendada']
+  confirmed [note: 'Paciente confirmó asistencia']
+  in_progress [note: 'Consulta en curso']
+  completed [note: 'Consulta completada']
+  cancelled [note: 'Cancelada por clínica o paciente']
+  no_show [note: 'Paciente no asistió']
+}
+
+Enum reminder_type {
+  email [note: 'Correo electrónico']
+  sms [note: 'Mensaje de texto']
+  whatsapp [note: 'WhatsApp Business API']
+}
+
+Enum intervention_type {
+  cleaning [note: 'Limpieza dental profiláctica']
+  filling [note: 'Obturación/Resina']
+  extraction [note: 'Extracción dental']
+  root_canal [note: 'Endodoncia (tratamiento de conducto)']
+  crown [note: 'Corona dental']
+  bridge [note: 'Puente dental']
+  implant [note: 'Implante dental']
+  orthodontics [note: 'Ortodoncia (brackets, alineadores)']
+  whitening [note: 'Blanqueamiento dental']
+  periodontics [note: 'Tratamiento periodontal']
+  emergency [note: 'Atención de emergencia']
+  consultation [note: 'Consulta general']
+  other [note: 'Otro tipo de intervención']
+}
+
+Enum intervention_status {
+  planned [note: 'Planificada, no iniciada']
+  in_progress [note: 'En progreso (múltiples sesiones)']
+  completed [note: 'Completada exitosamente']
+  cancelled [note: 'Cancelada']
+}
+
+Enum invoice_status {
+  draft [note: 'Borrador, no enviada al paciente']
+  issued [note: 'Emitida, pendiente de pago']
+  partially_paid [note: 'Pagada parcialmente']
+  paid [note: 'Pagada completamente']
+  overdue [note: 'Vencida (pasó due_date)']
+  cancelled [note: 'Cancelada']
+}
+
+Enum payment_method {
+  cash [note: 'Efectivo']
+  credit_card [note: 'Tarjeta de crédito']
+  debit_card [note: 'Tarjeta de débito']
+  transfer [note: 'Transferencia bancaria']
+  check [note: 'Cheque']
+}
+
+Enum inventory_category {
+  consumable [note: 'Material consumible (resinas, anestesia)']
+  instrument [note: 'Instrumental dental']
+  medication [note: 'Medicamentos']
+  office_supply [note: 'Material de oficina']
+  other [note: 'Otros']
+}
+
+Enum movement_type {
+  purchase [note: 'Compra de inventario']
+  consumption [note: 'Consumo en tratamiento']
+  adjustment [note: 'Ajuste de inventario (corrección)']
+  return [note: 'Devolución a proveedor']
+}
+
+Enum document_type {
+  xray [note: 'Radiografía']
+  scan [note: 'Escaneo/Tomografía']
+  consent [note: 'Consentimiento informado']
+  prescription [note: 'Receta médica']
+  photo [note: 'Fotografía intraoral/extraoral']
+  other [note: 'Otro documento']
+}
+
+Enum audit_action {
+  create [note: 'Creación de registro']
+  update [note: 'Actualización de registro']
+  delete [note: 'Eliminación de registro']
+  login [note: 'Inicio de sesión']
+  logout [note: 'Cierre de sesión']
+}
+
+Enum contact_status {
+  pending [note: 'Pendiente de atención']
+  contacted [note: 'Ya fue contactado']
+  resolved [note: 'Resuelto/Cerrado']
+}
+
+// ========================================================================
+// MÓDULO: AUTENTICACIÓN Y SEGURIDAD
+// ========================================================================
+
+Table users as U {
+  id uuid [pk, not null, note: 'UUID v4 generado automáticamente']
+  email varchar(255) [unique, not null, note: 'Email único del usuario']
+  hashed_password varchar(255) [not null, note: 'Contraseña encriptada con bcrypt']
+  first_name varchar(100) [not null, note: 'Nombre(s)']
+  last_name varchar(100) [not null, note: 'Apellido(s)']
+  role user_role [not null, default: 'receptionist', note: 'Rol del usuario en el sistema']
+  is_active boolean [not null, default: true, note: 'Usuario activo/inactivo']
+  created_at timestamp [not null, default: `now()`, note: 'Fecha de creación']
+  updated_at timestamp [not null, default: `now()`, note: 'Fecha de última actualización']
+  
+  indexes {
+    (email) [unique, name: 'idx_users_email']
+    (role, is_active) [name: 'idx_users_role_active']
+  }
+  
+  Note: '''
+    **Tabla central de usuarios del sistema**
+    
+    Almacena credenciales y permisos. Los roles determinan:
+    - ADMIN: Acceso total al sistema
+    - DENTIST: Gestión clínica, citas, historiales
+    - RECEPTIONIST: Citas, contactos, facturación básica
+    
+    **Seguridad:**
+    - Contraseñas hasheadas con bcrypt (rounds=12)
+    - JWT tokens para autenticación (expire: 24h)
+    - Validación: No se puede eliminar último admin activo
+    - Validación: Usuario no puede eliminarse a sí mismo
+  '''
+}
+
+// ========================================================================
+// MÓDULO: GESTIÓN DE PACIENTES
+// ========================================================================
+
+Table patients as P {
+  id uuid [pk, not null, note: 'UUID v4 generado automáticamente']
+  patient_number varchar(20) [unique, not null, note: 'Número único de paciente (P-00001)']
+  first_name varchar(100) [not null, note: 'Nombre(s) del paciente']
+  last_name varchar(100) [not null, note: 'Apellido(s) del paciente']
+  email varchar(255) [note: 'Email del paciente (opcional)']
+  phone varchar(20) [note: 'Teléfono de contacto']
+  date_of_birth date [note: 'Fecha de nacimiento']
+  gender gender [note: 'Género del paciente']
+  address text [note: 'Dirección completa']
+  emergency_contacts jsonb [note: 'Array de contactos de emergencia {name, phone, relationship}']
+  medical_conditions text [note: 'Condiciones médicas relevantes (diabetes, hipertensión, etc.)']
+  allergies text [note: 'Alergias conocidas (medicamentos, látex, etc.)']
+  created_by uuid [not null, note: 'Usuario que registró al paciente']
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+  
+  indexes {
+    (patient_number) [unique, name: 'idx_patients_number']
+    (email) [name: 'idx_patients_email']
+    (created_by) [name: 'idx_patients_creator']
+    (last_name, first_name) [name: 'idx_patients_name']
+  }
+  
+  Note: '''
+    **Registro de pacientes de la clínica**
+    
+    **Campos calculados (properties en Python):**
+    - full_name = first_name + last_name
+    - age = calculado desde date_of_birth
+    
+    **Generación automática:**
+    - patient_number: Formato P-XXXXX (secuencial)
+    - Ejemplo: P-00001, P-00002, etc.
+    
+    **JSONB emergency_contacts ejemplo:**
+    ```json
+    [
+      {
+        "name": "María González",
+        "phone": "+593987654321",
+        "relationship": "Esposa"
+      }
+    ]
+    ```
+  '''
+}
+
+// ========================================================================
+// MÓDULO: GESTIÓN DE CITAS
+// ========================================================================
+
+Table appointments as APT {
+  id uuid [pk, not null]
+  patient_id uuid [not null, note: 'Paciente que tiene la cita']
+  dentist_id uuid [not null, note: 'Dentista asignado']
+  scheduled_time timestamp [not null, note: 'Fecha y hora de la cita']
+  duration_minutes int [not null, default: 30, note: 'Duración en minutos (default: 30)']
+  status appointment_status [not null, default: 'scheduled']
+  reason text [note: 'Motivo de la consulta']
+  notes text [note: 'Notas adicionales de la cita']
+  created_by uuid [not null, note: 'Usuario que agendó la cita']
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+  
+  indexes {
+    (scheduled_time) [name: 'idx_appointments_scheduled_time']
+    (dentist_id, status) [name: 'idx_appointments_dentist_status']
+    (patient_id) [name: 'idx_appointments_patient']
+    (scheduled_time, dentist_id) [name: 'idx_appointments_time_dentist']
+  }
+  
+  Note: '''
+    **Sistema de citas médicas**
+    
+    **Validaciones en código:**
+    - scheduled_time debe estar en el futuro
+    - Detectar conflictos: No permitir doble agendamiento del mismo dentista
+    - Validar horarios laborales (ej: 8:00-18:00 L-V, 8:00-13:00 S)
+    - end_time = scheduled_time + duration_minutes
+    
+    **Flujo de estados:**
+    scheduled → confirmed → in_progress → completed
+                ↓              ↓
+            cancelled      no_show
+    
+    **Métricas clave:**
+    - Tasa de NO_SHOW: (no_show / total_scheduled) * 100
+    - Tasa de cancelación
+    - Ocupación por dentista
+  '''
+}
+
+Table appointment_reminders as APTR {
+  id uuid [pk, not null]
+  appointment_id uuid [not null, note: 'Cita asociada al recordatorio']
+  reminder_type reminder_type [not null]
+  scheduled_for timestamp [not null, note: 'Cuándo enviar el recordatorio']
+  sent boolean [not null, default: false]
+  sent_at timestamp [note: 'Cuándo se envió efectivamente']
+  created_at timestamp [not null, default: `now()`]
+  
+  indexes {
+    (appointment_id) [name: 'idx_reminders_appointment']
+    (scheduled_for, sent) [name: 'idx_reminders_pending']
+  }
+  
+  Note: '''
+    **Sistema de recordatorios automáticos**
+    
+    **Configuración típica:**
+    - Email: 24 horas antes
+    - SMS: 2 horas antes (si habilitado)
+    - WhatsApp: 24 horas antes (si habilitado)
+    
+    **Proceso automático (cron job):**
+    1. Cada 15 minutos, buscar reminders con sent=false y scheduled_for <= now()
+    2. Enviar notificación por el canal especificado
+    3. Marcar sent=true y registrar sent_at
+    
+    **Integración:**
+    - Email: SendGrid / AWS SES
+    - SMS: Twilio
+    - WhatsApp: Twilio Business API
+    
+    **ROI estimado:**
+    - Reducción de NO_SHOW: 30-40%
+    - Ahorro mensual: $300-$800 USD
+  '''
+}
+
+// ========================================================================
+// MÓDULO: HISTORIAL CLÍNICO
+// ========================================================================
+
+Table medical_records as MR {
+  id uuid [pk, not null]
+  patient_id uuid [not null, note: 'Paciente del historial clínico']
+  dentist_id uuid [not null, note: 'Dentista que atendió']
+  visit_date date [not null, note: 'Fecha de la consulta']
+  diagnosis text [not null, note: 'Diagnóstico de la visita']
+  treatment_plan text [not null, note: 'Plan de tratamiento propuesto']
+  notes text [note: 'Observaciones adicionales']
+  teeth_chart jsonb [note: 'Odontograma digital en formato JSON']
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+  
+  indexes {
+    (patient_id, visit_date) [name: 'idx_medical_records_patient_date']
+    (dentist_id) [name: 'idx_medical_records_dentist']
+  }
+  
+  Note: '''
+    **Historial clínico del paciente**
+    
+    **teeth_chart (JSONB) - Odontograma digital:**
+    ```json
+    {
+      "11": {"condition": "healthy", "notes": ""},
+      "12": {"condition": "cavity", "notes": "Caries oclusal"},
+      "21": {"condition": "filled", "notes": "Resina en mesial"}
+    }
+    ```
+    
+    **Notación dental:**
+    - Sistema FDI: 11-18 (superior derecho), 21-28 (superior izquierdo)
+                    41-48 (inferior derecho), 31-38 (inferior izquierdo)
+    
+    **Condiciones posibles:**
+    - healthy, cavity, filled, crown, missing, root_canal, implant, etc.
+  '''
+}
+
+Table interventions as INT {
+  id uuid [pk, not null]
+  medical_record_id uuid [not null, note: 'Historial clínico asociado']
+  intervention_type intervention_type [not null]
+  tooth_number varchar(5) [note: 'Diente afectado (ej: 1.1, 2.3) - FDI notation']
+  description text [not null, note: 'Descripción detallada de la intervención']
+  estimated_cost decimal(10,2) [note: 'Costo estimado inicial']
+  final_cost decimal(10,2) [note: 'Costo final real']
+  intervention_date date [not null]
+  follow_up_date date [note: 'Fecha de seguimiento programado']
+  status intervention_status [not null, default: 'planned']
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+  
+  indexes {
+    (medical_record_id) [name: 'idx_interventions_medical_record']
+    (intervention_type) [name: 'idx_interventions_type']
+    (intervention_date) [name: 'idx_interventions_date']
+  }
+  
+  Note: '''
+    **Intervenciones clínicas detalladas**
+    
+    **Beneficios de separar de medical_record:**
+    - Múltiples intervenciones por consulta
+    - Tracking individual de costos
+    - Vinculación directa con facturación
+    - Análisis de rentabilidad por tipo
+    
+    **Flujo de costos:**
+    1. estimated_cost: Cotización inicial al paciente
+    2. final_cost: Costo real después de materiales + tiempo
+    3. Diferencia (variance) = final_cost - estimated_cost
+    
+    **Métricas:**
+    - Intervención más rentable
+    - Tiempo promedio por tipo
+    - Costo promedio de materiales
+  '''
+}
+
+// ========================================================================
+// MÓDULO: FACTURACIÓN Y PAGOS
+// ========================================================================
+
+Table invoices as INV {
+  id uuid [pk, not null]
+  invoice_number varchar(20) [unique, not null, note: 'Número de factura (INV-00001)']
+  patient_id uuid [not null, note: 'Paciente al que se le emite la factura']
+  issue_date date [not null, note: 'Fecha de emisión']
+  due_date date [not null, note: 'Fecha de vencimiento']
+  subtotal decimal(10,2) [not null, note: 'Suma de items antes de impuestos']
+  tax_amount decimal(10,2) [not null, default: 0, note: 'Impuestos (IVA, etc.)']
+  discount_amount decimal(10,2) [not null, default: 0, note: 'Descuentos aplicados']
+  total_amount decimal(10,2) [not null, note: 'Total a pagar (subtotal + tax - discount)']
+  paid_amount decimal(10,2) [not null, default: 0, note: 'Monto pagado hasta ahora']
+  balance_due decimal(10,2) [not null, note: 'Saldo pendiente (total - paid)']
+  status invoice_status [not null, default: 'draft']
+  notes text [note: 'Notas de la factura']
+  created_by uuid [not null, note: 'Usuario que creó la factura']
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+  
+  indexes {
+    (invoice_number) [unique, name: 'idx_invoices_number']
+    (patient_id, status) [name: 'idx_invoices_patient_status']
+    (status, due_date) [name: 'idx_invoices_status_due']
+  }
+  
+  Note: '''
+    **Sistema de facturación completo**
+    
+    **Cálculos automáticos:**
+    - total_amount = subtotal + tax_amount - discount_amount
+    - balance_due = total_amount - paid_amount
+    
+    **Cambio automático de estado:**
+    - Si paid_amount = 0 y due_date < today → OVERDUE
+    - Si 0 < paid_amount < total_amount → PARTIALLY_PAID
+    - Si paid_amount = total_amount → PAID
+    
+    **Flujo típico:**
+    DRAFT → ISSUED → PARTIALLY_PAID → PAID
+                          ↓
+                      OVERDUE (si pasa due_date)
+    
+    **Reportes clave:**
+    - Cuentas por cobrar (status = issued/partially_paid/overdue)
+    - Antigüedad de deuda (aging report)
+    - Flujo de caja mensual
+  '''
+}
+
+Table invoice_items as INVI {
+  id uuid [pk, not null]
+  invoice_id uuid [not null, note: 'Factura a la que pertenece el item']
+  intervention_id uuid [note: 'Opcional: Vincula con intervención']
+  description varchar(255) [not null, note: 'Descripción del item']
+  quantity int [not null, default: 1]
+  unit_price decimal(10,2) [not null, note: 'Precio unitario']
+  discount_percent decimal(5,2) [not null, default: 0, note: 'Descuento en porcentaje']
+  subtotal decimal(10,2) [not null, note: 'quantity * unit_price * (1 - discount_percent/100)']
+  created_at timestamp [not null, default: `now()`]
+  
+  indexes {
+    (invoice_id) [name: 'idx_invoice_items_invoice']
+    (intervention_id) [name: 'idx_invoice_items_intervention']
+  }
+  
+  Note: '''
+    **Items de factura (líneas de detalle)**
+    
+    **Cálculo de subtotal:**
+    subtotal = quantity * unit_price * (1 - discount_percent/100)
+    
+    **Ejemplo:**
+    - Limpieza dental: 1 x $50.00 = $50.00
+    - Resina (2 dientes): 2 x $30.00 = $60.00
+    - Descuento 10%: $60.00 - $6.00 = $54.00
+    
+    **Vinculación con intervenciones:**
+    - Si intervention_id está presente, se toma final_cost como unit_price
+    - Facturación automática al completar intervención
+  '''
+}
+
+Table payments as PAY {
+  id uuid [pk, not null]
+  invoice_id uuid [not null, note: 'Factura que se está pagando']
+  receipt_number varchar(20) [unique, not null, note: 'Número de recibo (REC-00001)']
+  payment_date date [not null, note: 'Fecha del pago']
+  amount decimal(10,2) [not null, note: 'Monto del pago']
+  payment_method payment_method [not null]
+  reference_number varchar(100) [note: 'Número de transacción bancaria, etc.']
+  notes text [note: 'Observaciones del pago']
+  received_by uuid [not null, note: 'Usuario que recibió el pago']
+  created_at timestamp [not null, default: `now()`]
+  
+  indexes {
+    (invoice_id) [name: 'idx_payments_invoice']
+    (receipt_number) [unique, name: 'idx_payments_receipt']
+    (payment_date) [name: 'idx_payments_date']
+  }
+  
+  Note: '''
+    **Registro de pagos recibidos**
+    
+    **Validaciones:**
+    - amount NO puede exceder invoice.balance_due
+    - Actualizar automáticamente invoice.paid_amount += amount
+    - Actualizar invoice.balance_due = total_amount - paid_amount
+    - Cambiar invoice.status a PAID si balance_due = 0
+    
+    **Generación de receipt_number:**
+    - Formato: REC-XXXXX (secuencial)
+    - Ejemplo: REC-00001, REC-00002
+    
+    **Conciliación bancaria:**
+    - reference_number para tracking
+    - payment_method para análisis de formas de pago
+  '''
+}
+
+// ========================================================================
+// MÓDULO: GESTIÓN DE INVENTARIO
+// ========================================================================
+
+Table inventory_items as INVEN {
+  id uuid [pk, not null]
+  item_code varchar(50) [unique, not null, note: 'Código único del item (MAT-00001)']
+  name varchar(255) [not null, note: 'Nombre del material/instrumento']
+  description text [note: 'Descripción detallada']
+  category inventory_category [not null]
+  unit_of_measure varchar(20) [not null, note: 'Unidad: caja, unidad, ml, g, etc.']
+  current_stock int [not null, default: 0, note: 'Stock actual']
+  minimum_stock int [not null, default: 0, note: 'Stock mínimo para alerta']
+  reorder_quantity int [not null, default: 0, note: 'Cantidad a pedir cuando baje de mínimo']
+  unit_cost decimal(10,2) [not null, note: 'Costo unitario promedio']
+  is_active boolean [not null, default: true]
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+  
+  indexes {
+    (item_code) [unique, name: 'idx_inventory_code']
+    (category, is_active) [name: 'idx_inventory_category']
+    (current_stock, minimum_stock) [name: 'idx_inventory_stock_alert']
+  }
+  
+  Note: '''
+    **Control de inventario de materiales**
+    
+    **Sistema de alertas:**
+    - Si current_stock <= minimum_stock → Generar alerta
+    - Cantidad sugerida de compra: reorder_quantity
+    
+    **Cálculo de unit_cost (promedio móvil):**
+    - Al comprar: unit_cost = (current_value + purchase_value) / (current_stock + purchased_qty)
+    
+    **Categorías típicas:**
+    - CONSUMABLE: Resinas, anestesia, algodón, guantes
+    - INSTRUMENT: Fórceps, espejos, turbinas
+    - MEDICATION: Antibióticos, analgésicos
+    
+    **Reportes:**
+    - Items bajo stock mínimo
+    - Valor total de inventario
+    - Rotación de inventario
+  '''
+}
+
+Table inventory_movements as INVM {
+  id uuid [pk, not null]
+  item_id uuid [not null, note: 'Item de inventario afectado']
+  movement_type movement_type [not null]
+  quantity int [not null, note: 'Positivo para entradas, negativo para salidas']
+  unit_cost decimal(10,2) [not null, note: 'Costo unitario en este movimiento']
+  stock_after int [not null, note: 'Stock resultante después del movimiento']
+  reason text [note: 'Motivo del movimiento']
+  reference_document varchar(100) [note: 'PO#, Factura#, ID intervención, etc.']
+  performed_by uuid [not null, note: 'Usuario que realizó el movimiento']
+  movement_date timestamp [not null, default: `now()`]
+  created_at timestamp [not null, default: `now()`]
+  
+  indexes {
+    (item_id, movement_date) [name: 'idx_movements_item_date']
+    (movement_type) [name: 'idx_movements_type']
+    (performed_by) [name: 'idx_movements_user']
+  }
+  
+  Note: '''
+    **Trazabilidad de movimientos de inventario**
+    
+    **Tipos de movimiento:**
+    - PURCHASE: Compra nueva (quantity positivo)
+    - CONSUMPTION: Uso en tratamiento (quantity negativo)
+    - ADJUSTMENT: Corrección de inventario (positivo o negativo)
+    - RETURN: Devolución a proveedor (quantity negativo)
+    
+    **Proceso automático:**
+    1. Crear registro en inventory_movements
+    2. Actualizar inventory_items.current_stock += quantity
+    3. Registrar stock_after para auditoría
+    
+    **Auditoría:**
+    - stock_after permite reconstruir historial
+    - performed_by rastrea responsables
+    - reference_document vincula con documentos externos
+  '''
+}
+
+Table intervention_materials as INTM {
+  id uuid [pk, not null]
+  intervention_id uuid [not null, note: 'Intervención que consumió materiales']
+  item_id uuid [not null, note: 'Material consumido']
+  quantity_used int [not null, note: 'Cantidad consumida en la intervención']
+  unit_cost decimal(10,2) [not null, note: 'Costo unitario al momento del uso']
+  created_at timestamp [not null, default: `now()`]
+  
+  indexes {
+    (intervention_id) [name: 'idx_int_materials_intervention']
+    (item_id) [name: 'idx_int_materials_item']
+  }
+  
+  Note: '''
+    **Linking table: Materiales usados por intervención**
+    
+    **Flujo automático:**
+    1. Al completar intervención, registrar materiales usados aquí
+    2. Crear inventory_movement tipo CONSUMPTION
+    3. Actualizar inventory_items.current_stock
+    4. Calcular costo real de intervención = sum(quantity_used * unit_cost)
+    
+    **Análisis de costos:**
+    - Costo de materiales por tipo de intervención
+    - Rentabilidad: precio_cobrado - costo_materiales - tiempo_dentista
+    - Optimización de compras
+  '''
+}
+
+// ========================================================================
+// MÓDULO: GESTIÓN DOCUMENTAL
+// ========================================================================
+
+Table documents as DOC {
+  id uuid [pk, not null]
+  patient_id uuid [not null, note: 'Paciente dueño del documento']
+  medical_record_id uuid [note: 'Opcional: vincula con historial específico']
+  document_type document_type [not null]
+  file_name varchar(255) [not null, note: 'Nombre original del archivo']
+  file_path text [not null, note: 'Ruta en S3 o almacenamiento local']
+  mime_type varchar(100) [not null, note: 'image/png, application/pdf, etc.']
+  file_size_kb int [not null, note: 'Tamaño en KB']
+  description text [note: 'Descripción del documento']
+  uploaded_by uuid [not null, note: 'Usuario que subió el documento']
+  created_at timestamp [not null, default: `now()`]
+  
+  indexes {
+    (patient_id) [name: 'idx_documents_patient']
+    (medical_record_id) [name: 'idx_documents_medical_record']
+    (document_type) [name: 'idx_documents_type']
+  }
+  
+  Note: '''
+    **Gestión de documentos digitales**
+    
+    **Tipos de documentos:**
+    - XRAY: Radiografías panorámicas, periapicales
+    - SCAN: Tomografías 3D
+    - CONSENT: Consentimientos informados firmados
+    - PRESCRIPTION: Recetas médicas
+    - PHOTO: Fotos intraorales/extraorales
+    
+    **Almacenamiento:**
+    - Producción: AWS S3 (recomendado)
+    - Desarrollo: Local con volume mount
+    
+    **Estructura de file_path:**
+    - S3: s3://bucket-name/patients/{patient_id}/xrays/{uuid}.png
+    - Local: /storage/patients/{patient_id}/xrays/{uuid}.png
+    
+    **Seguridad:**
+    - URLs pre-firmadas con expiración (S3)
+    - Validación de mime_type en backend
+    - Límite de file_size (ej: 10MB)
+  '''
+}
+
+// ========================================================================
+// MÓDULO: AUDITORÍA Y TRAZABILIDAD
+// ========================================================================
+
+Table audit_logs as AUDIT {
+  id uuid [pk, not null]
+  user_id uuid [note: 'Usuario que realizó la acción (null si sistema)']
+  action_type audit_action [not null]
+  entity_type varchar(50) [not null, note: 'Tipo de entidad: User, Patient, Invoice, etc.']
+  entity_id uuid [not null, note: 'ID del registro afectado']
+  old_values jsonb [note: 'Valores antes del cambio (para UPDATE/DELETE)']
+  new_values jsonb [note: 'Valores después del cambio (para CREATE/UPDATE)']
+  ip_address varchar(45) [note: 'IP del cliente (IPv4 o IPv6)']
+  created_at timestamp [not null, default: `now()`]
+  
+  indexes {
+    (entity_type, entity_id) [name: 'idx_audit_entity']
+    (user_id) [name: 'idx_audit_user']
+    (action_type) [name: 'idx_audit_action']
+    (created_at) [name: 'idx_audit_date']
+  }
+  
+  Note: '''
+    **Sistema de auditoría completo**
+    
+    **Casos de uso:**
+    - Cumplimiento legal (HIPAA, GDPR)
+    - Trazabilidad de cambios en facturas
+    - Investigación de errores
+    - Análisis de actividad de usuarios
+    
+    **Acciones auditadas (críticas):**
+    - DELETE en cualquier entidad
+    - UPDATE en invoices (cambios de montos)
+    - UPDATE en patients (cambios de info sensible)
+    - CREATE/DELETE en users (gestión de accesos)
+    - LOGIN/LOGOUT (trazabilidad de sesiones)
+    
+    **JSONB old_values/new_values ejemplo:**
+    ```json
+    {
+      "total_amount": {"before": 100.00, "after": 120.00},
+      "status": {"before": "draft", "after": "issued"}
+    }
+    ```
+    
+    **Implementación:**
+    - Middleware de FastAPI para captura automática
+    - Decorador @auditable en servicios críticos
+  '''
+}
+
+// ========================================================================
+// MÓDULO: CONTACTO PÚBLICO
+// ========================================================================
+
+Table contact_requests as CR {
+  id uuid [pk, not null]
+  nombre varchar(255) [not null, note: 'Nombre completo del contacto']
+  cedula varchar(20) [not null, note: 'Cédula/DNI del contacto']
+  email varchar(255) [not null, note: 'Email de contacto']
+  telefono varchar(20) [not null, note: 'Teléfono de contacto']
+  motivo text [not null, note: 'Motivo de la consulta']
+  servicio text [note: 'Servicio de interés']
+  acepta_politica boolean [not null, default: false, note: 'Aceptó política de privacidad']
+  status contact_status [not null, default: 'pending']
+  assigned_to uuid [note: 'Usuario asignado para seguimiento']
+  created_at timestamp [not null, default: `now()`]
+  resolved_at timestamp [note: 'Fecha de resolución']
+  
+  indexes {
+    (status) [name: 'idx_contact_requests_status']
+    (assigned_to) [name: 'idx_contact_requests_assigned']
+    (created_at) [name: 'idx_contact_requests_date']
+  }
+  
+  Note: '''
+    **Formulario de contacto público (landing page)**
+    
+    **Flujo de trabajo:**
+    1. Cliente llena formulario en sitio web
+    2. Se crea contact_request con status=PENDING
+    3. Recepcionista ve lista de pendientes
+    4. Asigna a sí mismo (assigned_to) y contacta
+    5. Cambia status a CONTACTED
+    6. Al resolver: status=RESOLVED, resolved_at=now()
+    
+    **Conversión a paciente:**
+    - Si el contacto se convierte en paciente, vincularlo
+    - Crear nuevo registro en tabla patients
+    - Marcar contact_request como RESOLVED
+    
+    **Métricas:**
+    - Tiempo promedio de respuesta
+    - Tasa de conversión a pacientes
+    - Servicios más consultados
+  '''
+}
+
+// ========================================================================
+// RELACIONES ADICIONALES (ya definidas inline arriba, aquí para claridad)
+// ========================================================================
+
+// Usuarios y Pacientes
+Ref: patients.created_by > users.id [delete: set null, update: cascade]
+
+// Citas
+Ref: appointments.patient_id > patients.id [delete: cascade, update: cascade]
+Ref: appointments.dentist_id > users.id [delete: restrict, update: cascade]
+Ref: appointments.created_by > users.id [delete: set null, update: cascade]
+Ref: appointment_reminders.appointment_id > appointments.id [delete: cascade, update: cascade]
+
+// Historial Clínico
+Ref: medical_records.patient_id > patients.id [delete: cascade, update: cascade]
+Ref: medical_records.dentist_id > users.id [delete: restrict, update: cascade]
+Ref: interventions.medical_record_id > medical_records.id [delete: cascade, update: cascade]
+
+// Facturación
+Ref: invoices.patient_id > patients.id [delete: restrict, update: cascade]
+Ref: invoices.created_by > users.id [delete: set null, update: cascade]
+Ref: invoice_items.invoice_id > invoices.id [delete: cascade, update: cascade]
+Ref: invoice_items.intervention_id > interventions.id [delete: set null, update: cascade]
+Ref: payments.invoice_id > invoices.id [delete: restrict, update: cascade]
+Ref: payments.received_by > users.id [delete: set null, update: cascade]
+
+// Inventario
+Ref: inventory_movements.item_id > inventory_items.id [delete: restrict, update: cascade]
+Ref: inventory_movements.performed_by > users.id [delete: set null, update: cascade]
+Ref: intervention_materials.intervention_id > interventions.id [delete: cascade, update: cascade]
+Ref: intervention_materials.item_id > inventory_items.id [delete: restrict, update: cascade]
+
+// Documentos
+Ref: documents.patient_id > patients.id [delete: cascade, update: cascade]
+Ref: documents.medical_record_id > medical_records.id [delete: set null, update: cascade]
+Ref: documents.uploaded_by > users.id [delete: set null, update: cascade]
+
+// Auditoría
+Ref: audit_logs.user_id > users.id [delete: set null, update: cascade]
+
+// Contacto
+Ref: contact_requests.assigned_to > users.id [delete: set null, update: cascade]
+
+// ========================================================================
+// NOTAS FINALES
+// ========================================================================
+
+// Colores por módulo (opcional - para visualización en dbdiagram.io)
+TableGroup Autenticacion {
+  users
+}
+
+TableGroup GestionPacientes {
+  patients
+}
+
+TableGroup GestionCitas {
+  appointments
+  appointment_reminders
+}
+
+TableGroup HistorialClinico {
+  medical_records
+  interventions
+}
+
+TableGroup Facturacion {
+  invoices
+  invoice_items
+  payments
+}
+
+TableGroup Inventario {
+  inventory_items
+  inventory_movements
+  intervention_materials
+}
+
+TableGroup Documentacion {
+  documents
+}
+
+TableGroup Auditoria {
+  audit_logs
+}
+
+TableGroup Contacto {
+  contact_requests
+}

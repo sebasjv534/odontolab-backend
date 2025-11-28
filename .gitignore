@@ -76,3 +76,7 @@ logs/
 # Alembic
 alembic/versions/*.py
 !alembic/versions/.keep
+
+# Docs
+DBML_USAGE_GUIDE.md
+DATABASE_ER_DIAGRAM.md

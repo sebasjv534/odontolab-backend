@@ -39,3 +39,37 @@ class InterventionType(str, Enum):
     SURGERY = "surgery"
     EMERGENCY = "emergency"
     OTHER = "other"
+
+
+class AppointmentStatus(str, Enum):
+    """
+    Status enumeration for appointments.
+    
+    Tracks the lifecycle of an appointment from scheduling to completion.
+    Used for workflow management and reporting.
+    
+    Workflow:
+        SCHEDULED -> CONFIRMED -> IN_PROGRESS -> COMPLETED
+               |            |
+               v            v
+          CANCELLED     NO_SHOW
+    """
+    SCHEDULED = "scheduled"
+    CONFIRMED = "confirmed"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+    CANCELLED = "cancelled"
+    NO_SHOW = "no_show"
+
+
+class ReminderType(str, Enum):
+    """
+    Type of reminder notification method.
+    
+    Defines the communication channel for appointment reminders.
+    Multiple reminders can be configured for the same appointment.
+    """
+    EMAIL = "email"
+    SMS = "sms"
+    WHATSAPP = "whatsapp"
+
